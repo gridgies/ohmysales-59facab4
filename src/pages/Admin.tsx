@@ -10,6 +10,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Trash2, Edit, Plus, X } from "lucide-react";
 import Header from "@/components/Header";
+import { z } from "zod";
+
+const saleSchema = z.object({
+  retailer: z.string().trim().min(1, "Händler ist erforderlich").max(100, "Händler darf maximal 100 Zeichen lang sein"),
+  logo: z.string().url("Ungültige Logo-URL").max(500, "Logo-URL darf maximal 500 Zeichen lang sein"),
+  image: z.string().url("Ungültige Bild-URL").max(500, "Bild-URL darf maximal 500 Zeichen lang sein").optional().or(z.literal("")),
+  title: z.string().trim().min(1, "Titel ist erforderlich").max(200, "Titel darf maximal 200 Zeichen lang sein"),
+  discount: z.string().trim().min(1, "Rabatt ist erforderlich").max(50, "Rabatt darf maximal 50 Zeichen lang sein"),
+  code: z.string().trim().max(50, "Code darf maximal 50 Zeichen lang sein").optional().or(z.literal("")),
+  end_date: z.string().refine((date) => new Date(date) >= new Date(new Date().setHours(0, 0, 0, 0)), {
+    message: "Enddatum muss heute oder in der Zukunft liegen"
+  }),
+  url: z.string().url("Ungültige Sale-URL").max(1000, "Sale-URL darf maximal 1000 Zeichen lang sein"),
+  category: z.enum(["women", "men", "accessories", "unisex"]),
+  featured: z.boolean()
+});
 
 interface Sale {
   id: string;
@@ -44,6 +60,7 @@ const Admin = () => {
     featured: false,
     category: "women" as const,
   });
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!loading && (!user || !isAdmin)) {
@@ -84,12 +101,31 @@ const Admin = () => {
       featured: false,
       category: "women",
     });
+    setValidationErrors({});
     setIsEditing(false);
     setEditingSale(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setValidationErrors({});
+
+    // Validate form data
+    try {
+      saleSchema.parse(formData);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          if (err.path[0]) {
+            errors[err.path[0] as string] = err.message;
+          }
+        });
+        setValidationErrors(errors);
+        toast.error("Bitte überprüfen Sie die Eingaben");
+        return;
+      }
+    }
 
     const saleData = {
       ...formData,
@@ -196,6 +232,9 @@ const Admin = () => {
                     required
                     className="font-light"
                   />
+                  {validationErrors.retailer && (
+                    <p className="text-sm text-destructive mt-1">{validationErrors.retailer}</p>
+                  )}
                 </div>
 
                 <div>
@@ -206,6 +245,9 @@ const Admin = () => {
                     required
                     className="font-light"
                   />
+                  {validationErrors.logo && (
+                    <p className="text-sm text-destructive mt-1">{validationErrors.logo}</p>
+                  )}
                 </div>
 
                 <div>
@@ -215,6 +257,9 @@ const Admin = () => {
                     onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                     className="font-light"
                   />
+                  {validationErrors.image && (
+                    <p className="text-sm text-destructive mt-1">{validationErrors.image}</p>
+                  )}
                 </div>
 
                 <div>
@@ -225,6 +270,9 @@ const Admin = () => {
                     required
                     className="font-light"
                   />
+                  {validationErrors.title && (
+                    <p className="text-sm text-destructive mt-1">{validationErrors.title}</p>
+                  )}
                 </div>
 
                 <div>
@@ -235,6 +283,9 @@ const Admin = () => {
                     required
                     className="font-light"
                   />
+                  {validationErrors.discount && (
+                    <p className="text-sm text-destructive mt-1">{validationErrors.discount}</p>
+                  )}
                 </div>
 
                 <div>
@@ -244,6 +295,9 @@ const Admin = () => {
                     onChange={(e) => setFormData({ ...formData, code: e.target.value })}
                     className="font-light"
                   />
+                  {validationErrors.code && (
+                    <p className="text-sm text-destructive mt-1">{validationErrors.code}</p>
+                  )}
                 </div>
 
                 <div>
@@ -255,6 +309,9 @@ const Admin = () => {
                     required
                     className="font-light"
                   />
+                  {validationErrors.end_date && (
+                    <p className="text-sm text-destructive mt-1">{validationErrors.end_date}</p>
+                  )}
                 </div>
 
                 <div>
@@ -265,6 +322,9 @@ const Admin = () => {
                     required
                     className="font-light"
                   />
+                  {validationErrors.url && (
+                    <p className="text-sm text-destructive mt-1">{validationErrors.url}</p>
+                  )}
                 </div>
 
                 <div>
