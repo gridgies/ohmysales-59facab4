@@ -2,15 +2,38 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const EmailSignup = () => {
   const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
-      toast.success("Vielen Dank! Sie wurden erfolgreich angemeldet.");
-      setEmail("");
+    if (!email) return;
+
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase
+        .from("newsletter_subscribers")
+        .insert([{ email: email.toLowerCase().trim() }]);
+
+      if (error) {
+        // Check if email already exists
+        if (error.code === '23505') {
+          toast.error("Diese E-Mail ist bereits registriert.");
+        } else {
+          toast.error("Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.");
+        }
+      } else {
+        toast.success("Vielen Dank! Sie wurden erfolgreich angemeldet.");
+        setEmail("");
+      }
+    } catch (error) {
+      toast.error("Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -34,9 +57,10 @@ const EmailSignup = () => {
           />
           <Button 
             type="submit" 
+            disabled={isSubmitting}
             className="bg-foreground text-background hover:bg-primary hover:text-primary-foreground transition-colors font-light uppercase tracking-wider text-sm px-8"
           >
-            Anmelden
+            {isSubmitting ? "Wird geladen..." : "Anmelden"}
           </Button>
         </form>
       </div>
