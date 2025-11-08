@@ -113,12 +113,12 @@ const Admin = () => {
     // Validate form data
     try {
       saleSchema.parse(formData);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
+    } catch (err) {
+      if (err instanceof z.ZodError) {
         const errors: Record<string, string> = {};
-        error.errors.forEach((err) => {
-          if (err.path[0]) {
-            errors[err.path[0] as string] = err.message;
+        err.issues.forEach((issue) => {
+          if (issue.path[0]) {
+            errors[issue.path[0] as string] = issue.message;
           }
         });
         setValidationErrors(errors);
