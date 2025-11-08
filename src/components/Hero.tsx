@@ -8,8 +8,7 @@ const Hero = () => {
         Kuratierte Fashion Sales
       </h2>
       <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto leading-relaxed">
-        Eine sorgfältig zusammengestellte Übersicht der aktuellen Sales führender 
-        Online-Händler in Deutschland
+        Finde die besten Sales - immer top aktuell!
       </p>
     </section>
   );
