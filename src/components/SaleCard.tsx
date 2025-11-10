@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 
 interface SaleCardProps {
@@ -99,12 +100,23 @@ const SaleCard = ({
         {code && (
           <button
             onClick={handleCopyCode}
-            className="w-full bg-muted/50 px-4 py-2 border border-border hover:border-foreground transition-colors text-left"
+            className="w-full bg-muted/50 px-4 py-2 border border-border hover:border-foreground transition-colors text-left group/code"
           >
-            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-              Code {copied && '· Kopiert ✓'}
-            </p>
-            <p className="font-mono text-sm text-foreground">{code}</p>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                  Code {copied && '· Kopiert ✓'}
+                </p>
+                <p className="font-mono text-sm text-foreground">{code}</p>
+              </div>
+              <div className="pt-1">
+                {copied ? (
+                  <Check className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <Copy className="h-4 w-4 text-muted-foreground opacity-50 group-hover/code:opacity-100 transition-opacity" />
+                )}
+              </div>
+            </div>
           </button>
         )}
 
