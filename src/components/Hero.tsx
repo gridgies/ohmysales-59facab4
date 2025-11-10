@@ -5,10 +5,10 @@ const Hero = () => {
         SINGLES' DAY — 11. NOVEMBER
       </p>
       <h2 className="text-5xl md:text-6xl font-light text-foreground mb-6 tracking-tight">
-        Kuratierte Fashion Sales
+        Fashion Sales
       </h2>
       <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto leading-relaxed">
-        Finde die besten Sales - immer top aktuell!
+        Finde die besten Premium Sales - immer aktuell!
       </p>
     </section>
   );
