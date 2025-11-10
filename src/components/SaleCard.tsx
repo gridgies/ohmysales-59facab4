@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { toast } from "sonner";
+
 interface SaleCardProps {
   retailer: string;
   logo: string;
@@ -32,6 +35,16 @@ const SaleCard = ({
   featured = false,
   categories = [],
 }: SaleCardProps) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyCode = () => {
+    if (code) {
+      navigator.clipboard.writeText(code);
+      setCopied(true);
+      toast.success("Code kopiert!");
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
   return (
     <article 
       className={`bg-card border border-border overflow-hidden transition-all duration-300 hover:border-primary/40 hover:shadow-lg group ${
@@ -84,12 +97,15 @@ const SaleCard = ({
         </div>
 
         {code && (
-          <div className="bg-muted/50 px-4 py-2 border border-border">
+          <button
+            onClick={handleCopyCode}
+            className="w-full bg-muted/50 px-4 py-2 border border-border hover:border-foreground transition-colors text-left"
+          >
             <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-              Code
+              Code {copied && '· Kopiert ✓'}
             </p>
             <p className="font-mono text-sm text-foreground">{code}</p>
-          </div>
+          </button>
         )}
 
         <p className="text-sm text-muted-foreground font-light">
