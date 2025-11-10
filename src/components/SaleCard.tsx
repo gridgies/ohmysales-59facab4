@@ -79,7 +79,7 @@ const SaleCard = ({
         </h4>
 
         <div className="flex items-baseline gap-2">
-          <span className="text-5xl font-light text-primary">{discount}</span>
+          <span className="text-4xl font-light text-primary">{discount}</span>
           <span className="text-muted-foreground font-light">Rabatt</span>
         </div>
 
