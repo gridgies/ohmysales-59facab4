@@ -13,6 +13,18 @@ interface SalesFilterProps {
   retailers: string[];
 }
 
+// Define categories here for easy management
+// To add new categories, simply add them to this array
+const CATEGORIES = [
+  { value: 'women', label: 'Damen' },
+  { value: 'men', label: 'Herren' },
+  { value: 'accessories', label: 'Accessoires' },
+  { value: 'beauty', label: 'Beauty' },
+  // Add more categories here as needed:
+  // { value: 'kids', label: 'Kinder' },
+  // { value: 'home', label: 'Home' },
+];
+
 const SalesFilter = ({
   selectedCategory,
   selectedDiscount,
@@ -37,10 +49,11 @@ const SalesFilter = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Alle</SelectItem>
-              <SelectItem value="women">Damen</SelectItem>
-              <SelectItem value="men">Herren</SelectItem>
-              <SelectItem value="accessories">Accessoires</SelectItem>
-              <SelectItem value="unisex">Unisex</SelectItem>
+              {CATEGORIES.map((category) => (
+                <SelectItem key={category.value} value={category.value}>
+                  {category.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

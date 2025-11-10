@@ -4,13 +4,24 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Trash2, Edit, Plus, X } from "lucide-react";
+import { Trash2, Edit, X } from "lucide-react";
 import Header from "@/components/Header";
 import { z } from "zod";
+
+// Define available categories - add new ones here
+const AVAILABLE_CATEGORIES = [
+  { value: 'women', label: 'Damen' },
+  { value: 'men', label: 'Herren' },
+  { value: 'accessories', label: 'Accessoires' },
+  { value: 'beauty', label: 'Beauty' },
+  // Add more categories as needed:
+  // { value: 'kids', label: 'Kinder' },
+  // { value: 'home', label: 'Home' },
+];
 
 const saleSchema = z.object({
   retailer: z.string().trim().min(1, "Händler ist erforderlich").max(100, "Händler darf maximal 100 Zeichen lang sein"),
@@ -23,7 +34,7 @@ const saleSchema = z.object({
     message: "Enddatum muss heute oder in der Zukunft liegen"
   }),
   url: z.string().url("Ungültige Sale-URL").max(1000, "Sale-URL darf maximal 1000 Zeichen lang sein"),
-  category: z.enum(["women", "men", "accessories", "unisex"]),
+  categories: z.array(z.string()).min(1, "Mindestens eine Kategorie ist erforderlich"),
   featured: z.boolean()
 });
 
@@ -38,7 +49,7 @@ interface Sale {
   end_date: string;
   url: string;
   featured: boolean;
-  category: string;
+  categories: string[];
 }
 
 const Admin = () => {
@@ -58,7 +69,7 @@ const Admin = () => {
     end_date: "",
     url: "",
     featured: false,
-    category: "women" as const,
+    categories: [] as string[],
   });
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
@@ -99,11 +110,20 @@ const Admin = () => {
       end_date: "",
       url: "",
       featured: false,
-      category: "women",
+      categories: [],
     });
     setValidationErrors({});
     setIsEditing(false);
     setEditingSale(null);
+  };
+
+  const handleCategoryToggle = (categoryValue: string) => {
+    setFormData(prev => {
+      const categories = prev.categories.includes(categoryValue)
+        ? prev.categories.filter(c => c !== categoryValue)
+        : [...prev.categories, categoryValue];
+      return { ...prev, categories };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -169,7 +189,7 @@ const Admin = () => {
       end_date: sale.end_date,
       url: sale.url,
       featured: sale.featured,
-      category: sale.category as any,
+      categories: sale.categories || [],
     });
     setEditingSale(sale);
     setIsEditing(true);
@@ -187,6 +207,11 @@ const Admin = () => {
 
     toast.success("Sale gelöscht");
     fetchSales();
+  };
+
+  const getCategoryLabel = (value: string) => {
+    const category = AVAILABLE_CATEGORIES.find(c => c.value === value);
+    return category ? category.label : value;
   };
 
   if (loading) {
@@ -328,18 +353,27 @@ const Admin = () => {
                 </div>
 
                 <div>
-                  <Label className="font-light">Kategorie</Label>
-                  <Select value={formData.category} onValueChange={(value: any) => setFormData({ ...formData, category: value })}>
-                    <SelectTrigger className="font-light">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="women">Damen</SelectItem>
-                      <SelectItem value="men">Herren</SelectItem>
-                      <SelectItem value="accessories">Accessoires</SelectItem>
-                      <SelectItem value="unisex">Unisex</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label className="font-light mb-3 block">Kategorien (mindestens eine auswählen)</Label>
+                  <div className="space-y-2 border border-border p-4 rounded-md">
+                    {AVAILABLE_CATEGORIES.map((category) => (
+                      <div key={category.value} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={category.value}
+                          checked={formData.categories.includes(category.value)}
+                          onCheckedChange={() => handleCategoryToggle(category.value)}
+                        />
+                        <label
+                          htmlFor={category.value}
+                          className="text-sm font-light leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                        >
+                          {category.label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                  {validationErrors.categories && (
+                    <p className="text-sm text-destructive mt-1">{validationErrors.categories}</p>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -386,7 +420,7 @@ const Admin = () => {
                       </div>
                     </div>
                     <div className="text-sm text-muted-foreground font-light">
-                      {sale.discount} • {sale.category} • Endet: {sale.end_date}
+                      {sale.discount} • {sale.categories.map(getCategoryLabel).join(', ')} • Endet: {sale.end_date}
                     </div>
                   </div>
                 ))}

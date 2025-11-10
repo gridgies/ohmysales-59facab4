@@ -8,7 +8,17 @@ interface SaleCardProps {
   endDate: string;
   url: string;
   featured?: boolean;
+  categories?: string[]; // Add categories prop
 }
+
+// Category labels for display
+const CATEGORY_LABELS: Record<string, string> = {
+  women: 'Damen',
+  men: 'Herren',
+  accessories: 'Accessoires',
+  beauty: 'Beauty',
+  // Add more as needed
+};
 
 const SaleCard = ({
   retailer,
@@ -20,6 +30,7 @@ const SaleCard = ({
   endDate,
   url,
   featured = false,
+  categories = [],
 }: SaleCardProps) => {
   return (
     <article 
@@ -48,6 +59,20 @@ const SaleCard = ({
             <h3 className="font-light text-foreground text-sm">{retailer}</h3>
           </div>
         </div>
+
+        {/* Category Tags */}
+        {categories && categories.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {categories.map((category) => (
+              <span
+                key={category}
+                className="px-2 py-1 text-xs uppercase tracking-wider bg-muted/50 text-muted-foreground border border-border font-light"
+              >
+                {CATEGORY_LABELS[category] || category}
+              </span>
+            ))}
+          </div>
+        )}
 
         <h4 className="text-xl font-light text-foreground leading-tight">
           {title}

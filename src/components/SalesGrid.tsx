@@ -15,7 +15,7 @@ interface Sale {
   end_date: string;
   url: string;
   featured: boolean;
-  category: string;
+  categories: string[]; // Changed from category: string to categories: string[]
   created_at?: string;
 }
 
@@ -75,13 +75,16 @@ const SalesGrid = ({ searchQuery }: SalesGridProps) => {
         (sale) =>
           sale.retailer.toLowerCase().includes(query) ||
           sale.title.toLowerCase().includes(query) ||
-          sale.category.toLowerCase().includes(query)
+          // Search in all categories
+          sale.categories.some(cat => cat.toLowerCase().includes(query))
       );
     }
 
-    // Apply category filter
+    // Apply category filter - now checks if category exists in array
     if (selectedCategory !== "all") {
-      filtered = filtered.filter((sale) => sale.category === selectedCategory);
+      filtered = filtered.filter((sale) => 
+        sale.categories && sale.categories.includes(selectedCategory)
+      );
     }
 
     // Apply discount filter
@@ -162,6 +165,7 @@ const SalesGrid = ({ searchQuery }: SalesGridProps) => {
               endDate={formatDate(sale.end_date)}
               url={sale.url}
               featured={sale.featured}
+              categories={sale.categories} // Pass categories to card
             />
           ))}
         </div>
