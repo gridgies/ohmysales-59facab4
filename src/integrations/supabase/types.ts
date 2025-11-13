@@ -42,8 +42,10 @@ export type Database = {
           featured: boolean | null
           id: string
           image: string | null
+          is_manually_expired: boolean | null
           logo: string
           retailer: string
+          start_date: string
           title: string
           updated_at: string
           url: string
@@ -57,8 +59,10 @@ export type Database = {
           featured?: boolean | null
           id?: string
           image?: string | null
+          is_manually_expired?: boolean | null
           logo: string
           retailer: string
+          start_date?: string
           title: string
           updated_at?: string
           url: string
@@ -72,8 +76,10 @@ export type Database = {
           featured?: boolean | null
           id?: string
           image?: string | null
+          is_manually_expired?: boolean | null
           logo?: string
           retailer?: string
+          start_date?: string
           title?: string
           updated_at?: string
           url?: string

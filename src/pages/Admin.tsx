@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Trash2, Edit, X } from "lucide-react";
+import { Trash2, Edit, X, Clock, RotateCcw } from "lucide-react";
 import Header from "@/components/Header";
 import BulkUpload from "@/components/BulkUpload";
 import RetailerManagement from "@/components/RetailerManagement";
@@ -33,6 +33,7 @@ const saleSchema = z.object({
   title: z.string().trim().min(1, "Title is required").max(200, "Title max 200 characters"),
   discount: z.string().trim().min(1, "Discount is required").max(50, "Discount max 50 characters"),
   code: z.string().trim().max(50, "Code max 50 characters").optional().or(z.literal("")),
+  start_date: z.string().min(1, "Start date is required"),
   end_date: z.string().refine((date) => new Date(date) >= new Date(new Date().setHours(0, 0, 0, 0)), {
     message: "End date must be today or in the future"
   }),
@@ -49,10 +50,12 @@ interface Sale {
   title: string;
   discount: string;
   code: string | null;
+  start_date: string;
   end_date: string;
   url: string;
   featured: boolean;
   categories: string[];
+  is_manually_expired: boolean | null;
 }
 
 interface Retailer {
@@ -76,6 +79,7 @@ const Admin = () => {
     title: "",
     discount: "",
     code: "",
+    start_date: new Date().toISOString().split('T')[0], // Default to today
     end_date: "",
     url: "",
     featured: false,
@@ -117,6 +121,7 @@ const Admin = () => {
       title: "",
       discount: "",
       code: "",
+      start_date: new Date().toISOString().split('T')[0], // Reset to today
       end_date: "",
       url: "",
       featured: false,
@@ -205,6 +210,7 @@ const Admin = () => {
       title: sale.title,
       discount: sale.discount,
       code: sale.code || "",
+      start_date: sale.start_date,
       end_date: sale.end_date,
       url: sale.url,
       featured: sale.featured,
@@ -228,9 +234,52 @@ const Admin = () => {
     fetchSales();
   };
 
+  const handleExpire = async (id: string) => {
+    if (!confirm("Mark this sale as expired?")) return;
+
+    const { error } = await supabase
+      .from("sales")
+      .update({ is_manually_expired: true })
+      .eq("id", id);
+
+    if (error) {
+      toast.error("Error expiring sale");
+      return;
+    }
+
+    toast.success("Sale marked as expired");
+    fetchSales();
+  };
+
+  const handleReactivate = async (id: string) => {
+    if (!confirm("Reactivate this sale?")) return;
+
+    const { error } = await supabase
+      .from("sales")
+      .update({ is_manually_expired: false })
+      .eq("id", id);
+
+    if (error) {
+      toast.error("Error reactivating sale");
+      return;
+    }
+
+    toast.success("Sale reactivated");
+    fetchSales();
+  };
+
   const getCategoryLabel = (value: string) => {
     const category = AVAILABLE_CATEGORIES.find(c => c.value === value);
     return category ? category.label : value;
+  };
+
+  const isExpired = (sale: Sale): boolean => {
+    // Check if manually expired OR past end date
+    if (sale.is_manually_expired) return true;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const endDate = new Date(sale.end_date);
+    return endDate < today;
   };
 
   if (loading) {
@@ -365,6 +414,20 @@ const Admin = () => {
                     </div>
 
                     <div>
+                      <Label className="font-light">Start Date</Label>
+                      <Input
+                        type="date"
+                        value={formData.start_date}
+                        onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                        required
+                        className="font-light"
+                      />
+                      {validationErrors.start_date && (
+                        <p className="text-sm text-destructive mt-1">{validationErrors.start_date}</p>
+                      )}
+                    </div>
+
+                    <div>
                       <Label className="font-light">End Date</Label>
                       <Input
                         type="date"
@@ -442,27 +505,59 @@ const Admin = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4 max-h-[600px] overflow-y-auto">
-                    {sales.map((sale) => (
-                      <div key={sale.id} className="border border-border p-4 space-y-2">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="font-light text-foreground">{sale.retailer}</h3>
-                            <p className="text-sm text-muted-foreground font-light">{sale.title}</p>
+                    {sales.map((sale) => {
+                      const expired = isExpired(sale);
+                      return (
+                        <div 
+                          key={sale.id} 
+                          className={`border border-border p-4 space-y-2 ${expired ? 'opacity-60 bg-muted/20' : ''}`}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-light text-foreground">{sale.retailer}</h3>
+                                {expired && (
+                                  <span className="px-2 py-0.5 text-xs bg-destructive/20 text-destructive border border-destructive/30 rounded uppercase">
+                                    Abgelaufen
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm text-muted-foreground font-light">{sale.title}</p>
+                            </div>
+                            <div className="flex gap-2">
+                              {expired ? (
+                                <Button 
+                                  size="sm" 
+                                  variant="outline" 
+                                  onClick={() => handleReactivate(sale.id)}
+                                  title="Reactivate sale"
+                                >
+                                  <RotateCcw className="h-4 w-4" />
+                                </Button>
+                              ) : (
+                                <Button 
+                                  size="sm" 
+                                  variant="outline" 
+                                  onClick={() => handleExpire(sale.id)}
+                                  title="Expire sale"
+                                >
+                                  <Clock className="h-4 w-4" />
+                                </Button>
+                              )}
+                              <Button size="sm" variant="outline" onClick={() => handleEdit(sale)}>
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button size="sm" variant="destructive" onClick={() => handleDelete(sale.id)}>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => handleEdit(sale)}>
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button size="sm" variant="destructive" onClick={() => handleDelete(sale.id)}>
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                          <div className="text-sm text-muted-foreground font-light">
+                            {sale.discount} • {sale.categories.map(getCategoryLabel).join(', ')} • {sale.start_date} - {sale.end_date}
                           </div>
                         </div>
-                        <div className="text-sm text-muted-foreground font-light">
-                          {sale.discount} • {sale.categories.map(getCategoryLabel).join(', ')} • Ends: {sale.end_date}
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>

@@ -12,10 +12,12 @@ interface Sale {
   title: string;
   discount: string;
   code: string | null;
+  start_date: string;
   end_date: string;
   url: string;
   featured: boolean;
   categories: string[]; // Changed from category: string to categories: string[]
+  is_manually_expired: boolean | null;
   created_at?: string;
 }
 
@@ -30,6 +32,7 @@ const SalesGrid = ({ searchQuery }: SalesGridProps) => {
   const [selectedDiscount, setSelectedDiscount] = useState("all");
   const [selectedRetailer, setSelectedRetailer] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
+  const [showExpired, setShowExpired] = useState(false);
   const [retailers, setRetailers] = useState<string[]>([]);
 
   useEffect(() => {
@@ -38,7 +41,7 @@ const SalesGrid = ({ searchQuery }: SalesGridProps) => {
 
   useEffect(() => {
     applyFiltersAndSort();
-  }, [sales, selectedCategory, selectedDiscount, selectedRetailer, sortBy, searchQuery]);
+  }, [sales, selectedCategory, selectedDiscount, selectedRetailer, sortBy, searchQuery, showExpired]);
 
   const fetchSales = async () => {
     const { data, error } = await supabase
@@ -65,8 +68,22 @@ const SalesGrid = ({ searchQuery }: SalesGridProps) => {
     return match ? parseInt(match[0]) : 0;
   };
 
+  const isExpired = (sale: Sale): boolean => {
+    // Check if manually expired OR past end date
+    if (sale.is_manually_expired) return true;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const endDate = new Date(sale.end_date);
+    return endDate < today;
+  };
+
   const applyFiltersAndSort = () => {
     let filtered = [...sales];
+
+    // Apply expiration filter FIRST
+    filtered = filtered.filter((sale) => 
+      showExpired ? isExpired(sale) : !isExpired(sale)
+    );
 
     // Apply search filter
     if (searchQuery && searchQuery.trim()) {
@@ -133,6 +150,32 @@ const SalesGrid = ({ searchQuery }: SalesGridProps) => {
 
   return (
     <section className="max-w-7xl mx-auto px-6 py-16">
+      {/* Expiration Toggle */}
+      <div className="mb-6 flex justify-center">
+        <div className="inline-flex border border-border rounded-md overflow-hidden">
+          <button
+            onClick={() => setShowExpired(false)}
+            className={`px-6 py-2 text-sm font-light uppercase tracking-wider transition-colors ${
+              !showExpired 
+                ? 'bg-foreground text-background' 
+                : 'bg-background text-foreground hover:bg-muted'
+            }`}
+          >
+            Aktuelle Sales
+          </button>
+          <button
+            onClick={() => setShowExpired(true)}
+            className={`px-6 py-2 text-sm font-light uppercase tracking-wider transition-colors ${
+              showExpired 
+                ? 'bg-foreground text-background' 
+                : 'bg-background text-foreground hover:bg-muted'
+            }`}
+          >
+            Abgelaufene Sales
+          </button>
+        </div>
+      </div>
+
       <SalesFilter
         selectedCategory={selectedCategory}
         selectedDiscount={selectedDiscount}
@@ -148,7 +191,7 @@ const SalesGrid = ({ searchQuery }: SalesGridProps) => {
       {filteredSales.length === 0 ? (
         <div className="text-center py-16">
           <p className="text-lg text-muted-foreground font-light">
-            Keine Sales gefunden
+            {showExpired ? 'Keine abgelaufenen Sales gefunden' : 'Keine Sales gefunden'}
           </p>
         </div>
       ) : (
@@ -166,6 +209,7 @@ const SalesGrid = ({ searchQuery }: SalesGridProps) => {
               url={sale.url}
               featured={sale.featured}
               categories={sale.categories} // Pass categories to card
+              isExpired={isExpired(sale)}
             />
           ))}
         </div>
