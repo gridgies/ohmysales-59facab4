@@ -1,17 +1,36 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import SearchBar from "./SearchBar";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { LogOut, Settings } from "lucide-react";
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
-  salesCount?: number;
-  retailersCount?: number;
 }
 
-const Header = ({ onSearch, salesCount = 24, retailersCount = 18 }: HeaderProps) => {
+const Header = ({ onSearch }: HeaderProps) => {
   const { user, isAdmin, signOut } = useAuth();
+  const [activeSalesCount, setActiveSalesCount] = useState<number>(0);
+
+  useEffect(() => {
+    fetchActiveSalesCount();
+  }, []);
+
+  const fetchActiveSalesCount = async () => {
+    const today = new Date().toISOString().split('T')[0];
+    
+    const { count, error } = await supabase
+      .from("sales")
+      .select("*", { count: 'exact', head: true })
+      .gte('end_date', today)
+      .eq('is_manually_expired', false);
+
+    if (!error && count !== null) {
+      setActiveSalesCount(count);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-card border-b border-border">
@@ -24,9 +43,11 @@ const Header = ({ onSearch, salesCount = 24, retailersCount = 18 }: HeaderProps)
           {onSearch && <SearchBar onSearch={onSearch} />}
           
           <div className="flex items-center gap-6">
-            <div className="hidden md:flex items-center gap-6 text-sm text-muted-foreground font-light">
-              <span>{salesCount} Aktive Sales</span>
-              <span>{retailersCount} Händler</span>
+            <div className="hidden md:flex items-center text-sm text-muted-foreground font-light">
+              <span className="flex items-center gap-2">
+                <span className="inline-block w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                {activeSalesCount} Aktive Sales
+              </span>
             </div>
             
             {user && isAdmin && (
