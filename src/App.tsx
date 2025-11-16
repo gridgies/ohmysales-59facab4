@@ -16,6 +16,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <Analytics />
+    <SpeedInsights />
     <TooltipProvider>
       <Toaster />
       <Sonner />
@@ -27,7 +28,6 @@ const App = () => (
             <Route path="/admin" element={<Admin />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
-            <SpeedInsights />
           </Routes>
         </AuthProvider>
       </BrowserRouter>
