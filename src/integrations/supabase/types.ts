@@ -32,6 +32,33 @@ export type Database = {
         }
         Relationships: []
       }
+      retailers: {
+        Row: {
+          id: string
+          name: string
+          logo: string
+          website: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          logo: string
+          website?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          logo?: string
+          website?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sales: {
         Row: {
           category: Database["public"]["Enums"]["sale_category"]

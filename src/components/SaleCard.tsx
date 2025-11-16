@@ -76,11 +76,11 @@ const SaleCard = ({
       )}
       
       <div className={`p-4 space-y-3 ${isExpired ? 'grayscale' : ''}`}>
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
           <img
             src={logo}
             alt={retailer}
-            className="h-10 w-10 object-contain"
+            className="h-16 w-16 object-contain"
           />
           <div className="flex-1">
             <h3 className="font-light text-foreground text-xs">{retailer}</h3>

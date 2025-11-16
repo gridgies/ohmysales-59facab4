@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Trash2, Edit, X, Clock, RotateCcw } from "lucide-react";
@@ -69,6 +70,7 @@ const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
   const [sales, setSales] = useState<Sale[]>([]);
+  const [retailers, setRetailers] = useState<Retailer[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editingSale, setEditingSale] = useState<Sale | null>(null);
   
@@ -96,6 +98,7 @@ const Admin = () => {
   useEffect(() => {
     if (user && isAdmin) {
       fetchSales();
+      fetchRetailers();
     }
   }, [user, isAdmin]);
 
@@ -111,6 +114,20 @@ const Admin = () => {
     }
 
     setSales(data || []);
+  };
+
+  const fetchRetailers = async () => {
+    const { data, error } = await supabase
+      .from("retailers")
+      .select("*")
+      .order("name", { ascending: true });
+
+    if (error) {
+      console.error("Error loading retailers:", error);
+      return;
+    }
+
+    setRetailers(data || []);
   };
 
   const resetForm = () => {
@@ -148,6 +165,7 @@ const Admin = () => {
       logo: retailer.logo,
     }));
     toast.success(`Retailer "${retailer.name}" selected`);
+    fetchRetailers(); // Refresh the list
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -326,42 +344,66 @@ const Admin = () => {
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                      <Label className="font-light">Retailer</Label>
-                      <Input
+                      <Label className="font-light">Händler auswählen</Label>
+                      <Select
                         value={formData.retailer}
-                        onChange={(e) => setFormData({ ...formData, retailer: e.target.value })}
-                        required
-                        className="font-light"
-                      />
+                        onValueChange={(value) => {
+                          const selectedRetailer = retailers.find(r => r.name === value);
+                          if (selectedRetailer) {
+                            setFormData({
+                              ...formData,
+                              retailer: selectedRetailer.name,
+                              logo: selectedRetailer.logo,
+                            });
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="font-light">
+                          <SelectValue placeholder="Wähle einen Händler" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {retailers.map((retailer) => (
+                            <SelectItem key={retailer.id} value={retailer.name}>
+                              <div className="flex items-center gap-2">
+                                <img 
+                                  src={retailer.logo} 
+                                  alt={retailer.name}
+                                  className="h-6 w-6 object-contain"
+                                />
+                                <span>{retailer.name}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       {validationErrors.retailer && (
                         <p className="text-sm text-destructive mt-1">{validationErrors.retailer}</p>
                       )}
+                      {retailers.length === 0 && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Keine Händler verfügbar. Gehe zum Tab "Retailers" um Händler hinzuzufügen.
+                        </p>
+                      )}
                     </div>
 
-                    <div>
-                      <Label className="font-light">Logo URL</Label>
-                      <Input
-                        value={formData.logo}
-                        onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
-                        required
-                        className="font-light"
-                      />
-                      {validationErrors.logo && (
-                        <p className="text-sm text-destructive mt-1">{validationErrors.logo}</p>
-                      )}
-                      {formData.logo && (
-                        <div className="mt-2 p-2 border border-border rounded-md">
+                    {formData.logo && (
+                      <div className="p-3 border border-border rounded-md bg-muted/30">
+                        <div className="flex items-center gap-3">
                           <img
                             src={formData.logo}
-                            alt="Logo preview"
-                            className="h-12 object-contain"
+                            alt="Selected retailer logo"
+                            className="h-12 w-12 object-contain"
                             onError={(e) => {
                               e.currentTarget.src = '/placeholder.svg';
                             }}
                           />
+                          <div>
+                            <p className="text-sm font-light text-foreground">{formData.retailer}</p>
+                            <p className="text-xs text-muted-foreground">Logo wird automatisch verwendet</p>
+                          </div>
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
 
                     <div>
                       <Label className="font-light">Image URL (optional)</Label>
@@ -569,7 +611,10 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="retailers">
-            <RetailerManagement onRetailerSelect={handleRetailerSelect} />
+            <RetailerManagement 
+              onRetailerSelect={handleRetailerSelect}
+              onRetailerAdded={fetchRetailers}
+            />
           </TabsContent>
         </Tabs>
       </div>

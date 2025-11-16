@@ -24,9 +24,10 @@ interface Retailer {
 
 interface RetailerManagementProps {
   onRetailerSelect?: (retailer: Retailer) => void;
+  onRetailerAdded?: () => void;
 }
 
-const RetailerManagement = ({ onRetailerSelect }: RetailerManagementProps) => {
+const RetailerManagement = ({ onRetailerSelect, onRetailerAdded }: RetailerManagementProps) => {
   const [retailers, setRetailers] = useState<Retailer[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -99,6 +100,9 @@ const RetailerManagement = ({ onRetailerSelect }: RetailerManagementProps) => {
     resetForm();
     setIsDialogOpen(false);
     fetchRetailers();
+    if (onRetailerAdded) {
+      onRetailerAdded();
+    }
   };
 
   const handleEdit = (retailer: Retailer) => {
