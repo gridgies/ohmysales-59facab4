@@ -59,6 +59,41 @@ export type Database = {
         }
         Relationships: []
       }
+      sale_ratings: {
+        Row: {
+          id: string
+          sale_id: string
+          hot_votes: number
+          cold_votes: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          sale_id: string
+          hot_votes?: number
+          cold_votes?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          sale_id?: string
+          hot_votes?: number
+          cold_votes?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sale_ratings_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: true
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sales: {
         Row: {
           category: Database["public"]["Enums"]["sale_category"]
@@ -153,6 +188,18 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      vote_hot: {
+        Args: {
+          sale_uuid: string
+        }
+        Returns: Json
+      }
+      vote_cold: {
+        Args: {
+          sale_uuid: string
+        }
+        Returns: Json
       }
     }
     Enums: {

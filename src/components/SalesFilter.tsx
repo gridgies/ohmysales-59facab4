@@ -37,81 +37,61 @@ const SalesFilter = ({
   retailers,
 }: SalesFilterProps) => {
   return (
-    <div className="bg-card border border-border p-6 mb-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div>
-          <Label className="text-sm font-light text-muted-foreground mb-2 block">
-            Kategorie
-          </Label>
-          <Select value={selectedCategory} onValueChange={onCategoryChange}>
-            <SelectTrigger className="font-light">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Alle</SelectItem>
-              {CATEGORIES.map((category) => (
-                <SelectItem key={category.value} value={category.value}>
-                  {category.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+    <div className="flex flex-wrap items-center gap-2 mb-6">
+      <Select value={selectedCategory} onValueChange={onCategoryChange}>
+        <SelectTrigger className="h-8 w-[120px] text-xs font-light border-border/50">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Alle</SelectItem>
+          {CATEGORIES.map((category) => (
+            <SelectItem key={category.value} value={category.value}>
+              {category.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-        <div>
-          <Label className="text-sm font-light text-muted-foreground mb-2 block">
-            Rabatt
-          </Label>
-          <Select value={selectedDiscount} onValueChange={onDiscountChange}>
-            <SelectTrigger className="font-light">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Alle</SelectItem>
-              <SelectItem value="20-30">20-30%</SelectItem>
-              <SelectItem value="30-40">30-40%</SelectItem>
-              <SelectItem value="40-50">40-50%</SelectItem>
-              <SelectItem value="50+">50%+</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+      <Select value={selectedDiscount} onValueChange={onDiscountChange}>
+        <SelectTrigger className="h-8 w-[100px] text-xs font-light border-border/50">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Alle</SelectItem>
+          <SelectItem value="20-30">20-30%</SelectItem>
+          <SelectItem value="30-40">30-40%</SelectItem>
+          <SelectItem value="40-50">40-50%</SelectItem>
+          <SelectItem value="50+">50%+</SelectItem>
+        </SelectContent>
+      </Select>
 
-        <div>
-          <Label className="text-sm font-light text-muted-foreground mb-2 block">
-            Händler
-          </Label>
-          <Select value={selectedRetailer} onValueChange={onRetailerChange}>
-            <SelectTrigger className="font-light">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Alle</SelectItem>
-              {retailers.map((retailer) => (
-                <SelectItem key={retailer} value={retailer}>
-                  {retailer}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      <Select value={selectedRetailer} onValueChange={onRetailerChange}>
+        <SelectTrigger className="h-8 w-[130px] text-xs font-light border-border/50">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Alle Händler</SelectItem>
+          {retailers.map((retailer) => (
+            <SelectItem key={retailer} value={retailer}>
+              {retailer}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-        <div>
-          <Label className="text-sm font-light text-muted-foreground mb-2 block">
-            Sortieren
-          </Label>
-          <Select value={sortBy} onValueChange={onSortChange}>
-            <SelectTrigger className="font-light">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="newest">Neueste</SelectItem>
-              <SelectItem value="discount-high">Höchster Rabatt</SelectItem>
-              <SelectItem value="discount-low">Niedrigster Rabatt</SelectItem>
-              <SelectItem value="ending-soon">Bald endend</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+      <div className="flex-1"></div>
+
+      <Select value={sortBy} onValueChange={onSortChange}>
+        <SelectTrigger className="h-8 w-[140px] text-xs font-light border-border/50">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="newest">Neueste</SelectItem>
+          <SelectItem value="discount-high">Höchster Rabatt</SelectItem>
+          <SelectItem value="discount-low">Niedrigster Rabatt</SelectItem>
+          <SelectItem value="ending-soon">Bald endend</SelectItem>
+        </SelectContent>
+      </Select>
     </div>
   );
 };

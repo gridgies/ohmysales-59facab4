@@ -149,29 +149,29 @@ const SalesGrid = ({ searchQuery }: SalesGridProps) => {
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-6 py-16">
+    <section className="max-w-7xl mx-auto px-6 py-8">
       {/* Expiration Toggle */}
       <div className="mb-6 flex justify-center">
-        <div className="inline-flex border border-border rounded-md overflow-hidden">
+        <div className="inline-flex border border-border/50 rounded overflow-hidden">
           <button
             onClick={() => setShowExpired(false)}
-            className={`px-6 py-2 text-sm font-light uppercase tracking-wider transition-colors ${
+            className={`px-4 py-1.5 text-xs font-light uppercase tracking-wider transition-colors ${
               !showExpired 
                 ? 'bg-foreground text-background' 
                 : 'bg-background text-foreground hover:bg-muted'
             }`}
           >
-            Aktuelle Sales
+            Aktuelle
           </button>
           <button
             onClick={() => setShowExpired(true)}
-            className={`px-6 py-2 text-sm font-light uppercase tracking-wider transition-colors ${
+            className={`px-4 py-1.5 text-xs font-light uppercase tracking-wider transition-colors ${
               showExpired 
                 ? 'bg-foreground text-background' 
                 : 'bg-background text-foreground hover:bg-muted'
             }`}
           >
-            Abgelaufene Sales
+            Abgelaufen
           </button>
         </div>
       </div>
@@ -190,15 +190,16 @@ const SalesGrid = ({ searchQuery }: SalesGridProps) => {
 
       {filteredSales.length === 0 ? (
         <div className="text-center py-16">
-          <p className="text-lg text-muted-foreground font-light">
+          <p className="text-sm text-muted-foreground font-light">
             {showExpired ? 'Keine abgelaufenen Sales gefunden' : 'Keine Sales gefunden'}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredSales.map((sale) => (
             <SaleCard
               key={sale.id}
+              id={sale.id}
               retailer={sale.retailer}
               logo={sale.logo}
               image={sale.image || undefined}

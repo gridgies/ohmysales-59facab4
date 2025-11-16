@@ -33,46 +33,37 @@ const Header = ({ onSearch }: HeaderProps) => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-card border-b border-border">
-      <div className="max-w-7xl mx-auto px-6 py-3">
+    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border/50">
+      <div className="max-w-7xl mx-auto px-6 py-2">
         <div className="flex items-center justify-between gap-4">
-          <Link to="/" className="text-xl font-light tracking-tight text-foreground hover:text-primary transition-colors">
+          <Link to="/" className="text-lg font-light tracking-tight text-foreground hover:text-primary transition-colors">
             ohmysales
           </Link>
           
           {onSearch && <SearchBar onSearch={onSearch} />}
           
-          <div className="flex items-center gap-6">
-            <div className="hidden md:flex items-center text-sm text-muted-foreground font-light">
-              <span className="flex items-center gap-2">
-                <span className="inline-block w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                {activeSalesCount} Aktive Sales
-              </span>
-            </div>
-            
+          <div className="flex items-center gap-3">            
             {user && isAdmin && (
               <Link to="/admin">
-                <Button variant="outline" size="sm" className="font-light">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Admin
+                <Button variant="ghost" size="sm" className="font-light h-8">
+                  <Settings className="h-3.5 w-3.5" />
                 </Button>
               </Link>
             )}
             
             {user ? (
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={signOut}
-                className="font-light"
+                className="font-light h-8"
               >
-                <LogOut className="h-4 w-4 mr-2" />
-                Abmelden
+                <LogOut className="h-3.5 w-3.5" />
               </Button>
             ) : (
               <Link to="/auth">
-                <Button variant="outline" size="sm" className="font-light">
-                  Anmelden
+                <Button variant="ghost" size="sm" className="font-light h-8 text-xs">
+                  Login
                 </Button>
               </Link>
             )}
