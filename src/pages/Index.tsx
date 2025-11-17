@@ -4,6 +4,7 @@ import Hero from "@/components/Hero";
 import SalesGrid from "@/components/SalesGrid";
 import EmailSignup from "@/components/EmailSignup";
 import Footer from "@/components/Footer";
+import ScrollingBanner from "@/components/ScrollingBanner";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -12,7 +13,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header onSearch={setSearchQuery} />
       <main>
-        <Hero />
+        <ScrollingBanner />
         <SalesGrid searchQuery={searchQuery} />
         <EmailSignup />
       </main>
