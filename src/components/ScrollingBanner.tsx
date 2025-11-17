@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 interface Retailer {
   id: string;
   name: string;
-  logo_url: string;
+  logo: string;
 }
 
 const ScrollingBanner = () => {
@@ -14,7 +14,7 @@ const ScrollingBanner = () => {
     const fetchRetailers = async () => {
       const { data, error } = await supabase
         .from("retailers")
-        .select("id, name, logo_url")
+        .select("id, name, logo")
         .order("name");
       
       if (data && !error) {
@@ -41,7 +41,7 @@ const ScrollingBanner = () => {
   const scrollItems = createScrollItems();
 
   return (
-    <div className="w-full bg-gradient-to-r from-[#ea384c] via-[#e91e63] to-[#ea384c] py-6 overflow-hidden relative">
+    <div className="w-full bg-gradient-to-r from-[#ea384c] via-[#e91e63] to-[#ea384c] py-3 overflow-hidden relative">
       <div className="flex">
         {/* First set */}
         <div className="flex items-center gap-16 animate-scroll-banner whitespace-nowrap">
@@ -49,13 +49,13 @@ const ScrollingBanner = () => {
             <div key={`first-${index}`} className="flex-shrink-0">
               {item.type === "logo" && item.data ? (
                 <img
-                  src={item.data.logo_url}
+                  src={item.data.logo}
                   alt={item.data.name}
-                  className="h-10 w-auto object-contain filter brightness-0 invert opacity-90"
+                  className="h-5 w-auto object-contain filter brightness-0 invert opacity-90"
                 />
               ) : (
-                <div className="text-white font-bold text-xl md:text-2xl px-8">
-                  ohmysales · Die besten Fashion Sales · Täglich aktualisiert
+                <div className="text-white text-xl md:text-lg px-8">
+                  ohmysales · Die besten Fashion Sales · Täglich aktualisiert für Dich
                 </div>
               )}
             </div>
@@ -68,13 +68,13 @@ const ScrollingBanner = () => {
             <div key={`second-${index}`} className="flex-shrink-0">
               {item.type === "logo" && item.data ? (
                 <img
-                  src={item.data.logo_url}
+                  src={item.data.logo}
                   alt={item.data.name}
-                  className="h-10 w-auto object-contain filter brightness-0 invert opacity-90"
+                  className="h-5 w-auto object-contain filter brightness-0 invert opacity-90"
                 />
               ) : (
-                <div className="text-white font-bold text-xl md:text-2xl px-8">
-                  ohmysales · Die besten Fashion Sales · Täglich aktualisiert
+                <div className="text-white text-xl md:text-lg px-8">
+                  ohmysales · Die besten Fashion Sales · Täglich aktualisiert für Dich
                 </div>
               )}
             </div>

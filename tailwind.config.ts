@@ -94,7 +94,7 @@ export default {
   					height: '0'
   				}
   			},
-			  'scroll-banner': {
+			'scroll-banner': {
 				'0%': { transform: 'translateX(0)' },
 				'100%': { transform: 'translateX(-50%)' },
 			},
