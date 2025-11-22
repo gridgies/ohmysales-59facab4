@@ -54,8 +54,8 @@ const ScrollingBanner = () => {
                   className="h-5 w-auto object-contain filter brightness-0 invert opacity-90"
                 />
               ) : (
-                <div className="text-white text-xl md:text-lg px-8">
-                  ohmysales · Die besten Fashion Sales · Täglich aktualisiert für Dich
+                <div className="text-white text-xl md:text-lg px-8 font-medium">
+                  🖤 BLACK FRIDAY · Die besten Fashion Sales · Bis zu 70% sparen
                 </div>
               )}
             </div>
@@ -73,8 +73,8 @@ const ScrollingBanner = () => {
                   className="h-5 w-auto object-contain filter brightness-0 invert opacity-90"
                 />
               ) : (
-                <div className="text-white text-xl md:text-lg px-8">
-                  ohmysales · Die besten Fashion Sales · Täglich aktualisiert für Dich
+                <div className="text-white text-xl md:text-lg px-8 font-medium">
+                  🖤 BLACK FRIDAY · Die besten Fashion Sales · Bis zu 70% sparen
                 </div>
               )}
             </div>
