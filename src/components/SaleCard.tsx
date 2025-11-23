@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Copy, Check, ChevronUp, ChevronDown, Flame } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Copy, Check, ChevronUp, ChevronDown, Flame, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useRating } from "@/hooks/useRating";
 
@@ -16,6 +17,7 @@ interface SaleCardProps {
   featured?: boolean;
   categories?: string[];
   isExpired?: boolean;
+  commentCount?: number;
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -39,6 +41,7 @@ const SaleCard = ({
   featured = false,
   categories = [],
   isExpired = false,
+  commentCount = 0,
 }: SaleCardProps) => {
   const [copied, setCopied] = useState(false);
   const { rating, hasVoted, isLoading, voteHot, voteCold } = useRating(id);
@@ -122,11 +125,11 @@ const SaleCard = ({
 
       {/* Image */}
       {image && (
-        <div className="h-40 overflow-hidden relative">
+        <div className="h-40 overflow-hidden relative bg-muted/20">
           <img
             src={image}
             alt={title}
-            className={`w-full h-full object-cover transition-transform duration-500 ${
+            className={`w-full h-full object-contain transition-transform duration-500 ${
               isExpired ? 'grayscale' : 'group-hover:scale-105'
             }`}
           />
@@ -210,6 +213,23 @@ const SaleCard = ({
         <p className="text-xs text-muted-foreground font-light">
           Endet am {endDate}
         </p>
+
+        {/* Comments Count & Details Link */}
+        <div className="flex items-center justify-between pt-2 border-t border-border/50">
+          <Link
+            to={`/sale/${id}`}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <MessageCircle className="h-3.5 w-3.5" />
+            <span>{commentCount} {commentCount === 1 ? 'Kommentar' : 'Kommentare'}</span>
+          </Link>
+          <Link
+            to={`/sale/${id}`}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Details →
+          </Link>
+        </div>
 
         {/* CTA */}
         {isExpired ? (

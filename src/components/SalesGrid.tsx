@@ -34,9 +34,11 @@ const SalesGrid = ({ searchQuery }: SalesGridProps) => {
   const [sortBy, setSortBy] = useState("newest");
   const [showExpired, setShowExpired] = useState(false);
   const [retailers, setRetailers] = useState<string[]>([]);
+  const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     fetchSales();
+    fetchCommentCounts();
   }, []);
 
   useEffect(() => {
@@ -55,12 +57,30 @@ const SalesGrid = ({ searchQuery }: SalesGridProps) => {
     }
 
     setSales(data || []);
-    
+
     // Extract unique retailers
     const uniqueRetailers = Array.from(
       new Set(data?.map((sale) => sale.retailer) || [])
     ).sort();
     setRetailers(uniqueRetailers);
+  };
+
+  const fetchCommentCounts = async () => {
+    const { data, error } = await supabase
+      .from("sale_comment_counts")
+      .select("*");
+
+    if (error) {
+      console.error("Error fetching comment counts:", error);
+      return;
+    }
+
+    // Convert array to object for easy lookup
+    const counts: Record<string, number> = {};
+    data?.forEach((item: any) => {
+      counts[item.sale_id] = item.comment_count;
+    });
+    setCommentCounts(counts);
   };
 
   const extractDiscountNumber = (discount: string): number => {
@@ -221,8 +241,9 @@ const SalesGrid = ({ searchQuery }: SalesGridProps) => {
               endDate={formatDate(sale.end_date)}
               url={sale.url}
               featured={sale.featured}
-              categories={sale.categories} // Pass categories to card
+              categories={sale.categories}
               isExpired={isExpired(sale)}
+              commentCount={commentCounts[sale.id] || 0}
             />
           ))}
         </div>

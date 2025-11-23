@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -51,6 +52,7 @@ interface Sale {
   title: string;
   discount: string;
   code: string | null;
+  description: string | null;
   start_date: string;
   end_date: string;
   url: string;
@@ -81,6 +83,7 @@ const Admin = () => {
     title: "",
     discount: "",
     code: "",
+    description: "",
     start_date: new Date().toISOString().split('T')[0], // Default to today
     end_date: "",
     url: "",
@@ -138,6 +141,7 @@ const Admin = () => {
       title: "",
       discount: "",
       code: "",
+      description: "",
       start_date: new Date().toISOString().split('T')[0], // Reset to today
       end_date: "",
       url: "",
@@ -193,6 +197,7 @@ const Admin = () => {
       ...formData,
       image: formData.image || null,
       code: formData.code || null,
+      description: formData.description || null,
     };
 
     if (editingSale) {
@@ -228,6 +233,7 @@ const Admin = () => {
       title: sale.title,
       discount: sale.discount,
       code: sale.code || "",
+      description: sale.description || "",
       start_date: sale.start_date,
       end_date: sale.end_date,
       url: sale.url,
@@ -452,6 +458,20 @@ const Admin = () => {
                       />
                       {validationErrors.code && (
                         <p className="text-sm text-destructive mt-1">{validationErrors.code}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <Label className="font-light">Description (optional)</Label>
+                      <Textarea
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        className="font-light"
+                        rows={4}
+                        placeholder="Detaillierte Beschreibung des Sales (wird auf der Detail-Seite angezeigt)"
+                      />
+                      {validationErrors.description && (
+                        <p className="text-sm text-destructive mt-1">{validationErrors.description}</p>
                       )}
                     </div>
 
