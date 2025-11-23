@@ -136,6 +136,7 @@ const SaleCard = ({
           <img
             src={image}
             alt={title}
+            loading="lazy"
             className={`w-full h-full object-contain transition-transform duration-500 ${
               isExpired ? 'grayscale' : 'group-hover:scale-105'
             }`}
@@ -157,6 +158,7 @@ const SaleCard = ({
           <img
             src={logo}
             alt={retailer}
+            loading="lazy"
             className="h-8 object-contain"
           />
         </div>
