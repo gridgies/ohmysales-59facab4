@@ -17,11 +17,16 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Get Supabase credentials from environment or use defaults
-const supabaseUrl = process.env.VITE_SUPABASE_URL || 'YOUR_SUPABASE_URL';
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
+// Get Supabase credentials from environment
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Check if credentials are available and valid
+const hasValidCredentials = supabaseUrl && supabaseKey &&
+  supabaseUrl.startsWith('http') &&
+  supabaseUrl !== 'YOUR_SUPABASE_URL';
+
+const supabase = hasValidCredentials ? createClient(supabaseUrl, supabaseKey) : null;
 
 const BASE_URL = 'https://ohmysales.app';
 
@@ -41,22 +46,30 @@ function createSlug(title, retailer) {
 }
 
 async function generateSitemap() {
-  console.log('Fetching sales from Supabase...');
+  let sales = [];
 
-  // Fetch all active sales
-  const { data: sales, error } = await supabase
-    .from('sales')
-    .select('id, title, retailer, updated_at')
-    .is('is_manually_expired', false)
-    .gte('end_date', new Date().toISOString().split('T')[0])
-    .order('updated_at', { ascending: false });
+  if (!hasValidCredentials) {
+    console.log('⚠️  Supabase credentials not available - generating minimal sitemap');
+    console.log('   (This is normal during Vercel builds without environment variables)');
+  } else {
+    console.log('Fetching sales from Supabase...');
 
-  if (error) {
-    console.error('Error fetching sales:', error);
-    process.exit(1);
+    // Fetch all active sales
+    const { data, error } = await supabase
+      .from('sales')
+      .select('id, title, retailer, updated_at')
+      .is('is_manually_expired', false)
+      .gte('end_date', new Date().toISOString().split('T')[0])
+      .order('updated_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching sales:', error);
+      console.log('⚠️  Generating minimal sitemap without sale pages');
+    } else {
+      sales = data || [];
+      console.log(`Found ${sales.length} active sales`);
+    }
   }
-
-  console.log(`Found ${sales?.length || 0} active sales`);
 
   const now = formatDate(new Date());
 

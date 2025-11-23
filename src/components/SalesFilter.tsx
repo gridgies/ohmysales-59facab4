@@ -44,44 +44,16 @@ const SalesFilter = ({
 }: SalesFilterProps) => {
   return (
     <div className="space-y-4 mb-6">
-      {/* Stats Bar & Toggle */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        {/* Stats */}
-        {!showExpired && filteredCount > 0 && (
-          <p className="text-sm text-muted-foreground">
-            <span className="font-semibold text-foreground">{filteredCount}</span> aktive Fashion Deals{" "}
-            {selectedCategory !== "all" && `in ${CATEGORIES.find(c => c.value === selectedCategory)?.label || selectedCategory}`}
-            {selectedRetailer !== "all" && ` bei ${selectedRetailer}`}
-            {" "}· Täglich aktualisiert
-          </p>
-        )}
+      {/* Stats Bar */}
+      {filteredCount > 0 && (
+        <p className="text-sm text-muted-foreground">
+          <span className="font-semibold text-foreground">{filteredCount}</span> aktive Fashion Deals{" "}
+          {selectedCategory !== "all" && `in ${CATEGORIES.find(c => c.value === selectedCategory)?.label || selectedCategory}`}
+          {selectedRetailer !== "all" && ` bei ${selectedRetailer}`}
+        </p>
+      )}
 
-        {/* Aktuelle/Abgelaufen Toggle */}
-        <div className="inline-flex border border-border/50 rounded overflow-hidden">
-          <button
-            onClick={() => onShowExpiredChange(false)}
-            className={`px-4 py-1.5 text-xs font-light uppercase tracking-wider transition-colors ${
-              !showExpired
-                ? 'bg-foreground text-background'
-                : 'bg-background text-foreground hover:bg-muted'
-            }`}
-          >
-            Aktuelle
-          </button>
-          <button
-            onClick={() => onShowExpiredChange(true)}
-            className={`px-4 py-1.5 text-xs font-light uppercase tracking-wider transition-colors ${
-              showExpired
-                ? 'bg-foreground text-background'
-                : 'bg-background text-foreground hover:bg-muted'
-            }`}
-          >
-            Abgelaufen
-          </button>
-        </div>
-      </div>
-
-      {/* Filters */}
+      {/* Filters & Toggle */}
       <div className="flex flex-wrap items-center gap-2">
       <Select value={selectedCategory} onValueChange={onCategoryChange}>
         <SelectTrigger className="h-8 w-[120px] text-xs font-light border-border/50">
@@ -123,6 +95,30 @@ const SalesFilter = ({
           ))}
         </SelectContent>
       </Select>
+
+      {/* Aktuelle/Abgelaufen Toggle */}
+      <div className="inline-flex border border-border/50 rounded overflow-hidden">
+        <button
+          onClick={() => onShowExpiredChange(false)}
+          className={`px-4 py-1.5 text-xs font-light uppercase tracking-wider transition-colors ${
+            !showExpired
+              ? 'bg-foreground text-background'
+              : 'bg-background text-foreground hover:bg-muted'
+          }`}
+        >
+          Aktuelle
+        </button>
+        <button
+          onClick={() => onShowExpiredChange(true)}
+          className={`px-4 py-1.5 text-xs font-light uppercase tracking-wider transition-colors ${
+            showExpired
+              ? 'bg-foreground text-background'
+              : 'bg-background text-foreground hover:bg-muted'
+          }`}
+        >
+          Abgelaufen
+        </button>
+      </div>
 
       <div className="flex-1"></div>
 
