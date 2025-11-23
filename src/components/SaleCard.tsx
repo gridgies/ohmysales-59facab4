@@ -173,14 +173,27 @@ const SaleCard = ({
         </div>
 
         {/* Code - Always visible */}
-        <div className="bg-muted/30 px-3 py-2 border border-border/50 text-center">
+        <div className="bg-muted/30 px-3 py-2.5 border border-border/50 min-h-[60px] flex items-center justify-center">
           {code ? (
-            <div onClick={(e) => { e.preventDefault(); handleCopyCode(); }} className="cursor-pointer">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
-                Code {copied && '· Kopiert ✓'}
-              </p>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                handleCopyCode();
+              }}
+              className="w-full text-center hover:bg-muted/20 transition-colors rounded px-2 py-1"
+            >
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                  Code {copied && '· Kopiert ✓'}
+                </p>
+                {copied ? (
+                  <Check className="h-3 w-3 text-green-600" />
+                ) : (
+                  <Copy className="h-3 w-3 text-muted-foreground" />
+                )}
+              </div>
               <p className="font-mono text-sm font-semibold text-foreground">{code}</p>
-            </div>
+            </button>
           ) : (
             <p className="text-xs text-muted-foreground">Kein Code benötigt</p>
           )}
