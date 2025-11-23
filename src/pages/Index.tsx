@@ -13,6 +13,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header onSearch={setSearchQuery} />
       <main>
+        <Hero />
         <ScrollingBanner />
         <SalesGrid searchQuery={searchQuery} />
         <EmailSignup />

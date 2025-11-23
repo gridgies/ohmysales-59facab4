@@ -150,6 +150,18 @@ const SalesGrid = ({ searchQuery }: SalesGridProps) => {
 
   return (
     <section className="max-w-7xl mx-auto px-6 py-8">
+      {/* Stats Bar - Social Proof */}
+      {!showExpired && filteredSales.length > 0 && (
+        <div className="mb-6 text-center">
+          <p className="text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">{filteredSales.length}</span> aktive Fashion Deals{" "}
+            {selectedCategory !== "all" && `in ${selectedCategory}`}
+            {selectedRetailer !== "all" && ` bei ${selectedRetailer}`}
+            {" "}· Täglich aktualisiert
+          </p>
+        </div>
+      )}
+
       {/* Expiration Toggle */}
       <div className="mb-6 flex justify-center">
         <div className="inline-flex border border-border/50 rounded overflow-hidden">
