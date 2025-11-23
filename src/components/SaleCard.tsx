@@ -56,13 +56,14 @@ const SaleCard = ({
   };
 
   return (
-    <article 
-      className={`bg-card border border-border overflow-hidden transition-all duration-300 relative ${
-        isExpired 
-          ? 'opacity-60 cursor-not-allowed' 
-          : 'hover:border-primary/40 hover:shadow-lg'
-      } group ${featured ? 'border-t-4 border-t-primary' : ''}`}
-    >
+    <Link to={`/sale/${id}`}>
+      <article
+        className={`bg-card border border-border overflow-hidden transition-all duration-300 relative ${
+          isExpired
+            ? 'opacity-60 cursor-not-allowed'
+            : 'hover:border-primary/40 hover:shadow-lg'
+        } group ${featured ? 'border-t-4 border-t-primary' : ''}`}
+      >
       {/* Hot Badge - Top Left */}
       {!isExpired && rating.is_hot && (
         <div className="absolute top-2 left-2 z-10 bg-green-500 text-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-sm flex items-center gap-1">
@@ -214,21 +215,10 @@ const SaleCard = ({
           Endet am {endDate}
         </p>
 
-        {/* Comments Count & Details Link */}
-        <div className="flex items-center justify-between pt-2 border-t border-border/50">
-          <Link
-            to={`/sale/${id}`}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <MessageCircle className="h-3.5 w-3.5" />
-            <span>{commentCount} {commentCount === 1 ? 'Kommentar' : 'Kommentare'}</span>
-          </Link>
-          <Link
-            to={`/sale/${id}`}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Details →
-          </Link>
+        {/* Comments Count */}
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-2 border-t border-border/50">
+          <MessageCircle className="h-3.5 w-3.5" />
+          <span>{commentCount} {commentCount === 1 ? 'Kommentar' : 'Kommentare'}</span>
         </div>
 
         {/* CTA */}
@@ -241,6 +231,7 @@ const SaleCard = ({
             href={url}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
             className="inline-block text-xs uppercase tracking-widest text-foreground hover:text-primary transition-colors border-b border-transparent hover:border-primary pb-1 font-medium"
           >
             ZUM SALE →
@@ -248,6 +239,7 @@ const SaleCard = ({
         )}
       </div>
     </article>
+    </Link>
   );
 };
 
