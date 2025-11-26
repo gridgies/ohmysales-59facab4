@@ -64,6 +64,45 @@ const SaleDetail = () => {
     }
   }, [id]);
 
+  // Update meta tags when sale data loads (critical for SEO)
+  useEffect(() => {
+    if (sale) {
+      // Update page title
+      document.title = `${sale.discount} ${sale.retailer} Sale | ohmysales`;
+
+      // Update meta description
+      const metaDescription = document.querySelector('meta[name="description"]');
+      if (metaDescription) {
+        const description = sale.description
+          ? `${sale.title} - ${sale.description.substring(0, 150)}`
+          : `${sale.discount} bei ${sale.retailer}! ${sale.title}. Jetzt sparen auf ohmysales.app`;
+        metaDescription.setAttribute('content', description);
+      }
+
+      // Update Open Graph tags
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      if (ogTitle) {
+        ogTitle.setAttribute('content', `${sale.discount} ${sale.retailer} | ohmysales`);
+      }
+
+      const ogDescription = document.querySelector('meta[property="og:description"]');
+      if (ogDescription) {
+        ogDescription.setAttribute('content', `${sale.title} - Spare jetzt ${sale.discount} bei ${sale.retailer}!`);
+      }
+
+      const ogImage = document.querySelector('meta[property="og:image"]');
+      if (ogImage && sale.image) {
+        ogImage.setAttribute('content', sale.image);
+      }
+
+      // Update canonical URL
+      const canonical = document.querySelector('link[rel="canonical"]');
+      if (canonical) {
+        canonical.setAttribute('href', `https://ohmysales.app/sale/${sale.id}`);
+      }
+    }
+  }, [sale]);
+
   const fetchSale = async () => {
     const { data, error } = await supabase
       .from("sales")
