@@ -41,7 +41,7 @@ const ScrollingBanner = () => {
   const scrollItems = createScrollItems();
 
   return (
-    <div className="w-full bg-gradient-to-r from-[#ea384c] via-[#e91e63] to-[#ea384c] py-3 overflow-hidden relative">
+    <div className="w-full bg-gradient-to-r from-[#ea384c] via-[#e91e63] to-[#ea384c] py-2 overflow-hidden relative">
       <div className="flex">
         {/* First set */}
         <div className="flex items-center gap-16 animate-scroll-banner whitespace-nowrap">
@@ -51,10 +51,10 @@ const ScrollingBanner = () => {
                 <img
                   src={item.data.logo}
                   alt={item.data.name}
-                  className="h-5 w-auto object-contain filter brightness-0 invert opacity-90"
+                  className="h-3.5 w-auto object-contain filter brightness-0 invert opacity-90"
                 />
               ) : (
-                <div className="text-white text-xl md:text-lg px-8 font-medium">
+                <div className="text-white text-lg md:text-base px-8 font-medium">
                   🖤 BLACK FRIDAY · Die besten Fashion Sales · Bis zu 70% sparen
                 </div>
               )}
@@ -70,10 +70,10 @@ const ScrollingBanner = () => {
                 <img
                   src={item.data.logo}
                   alt={item.data.name}
-                  className="h-5 w-auto object-contain filter brightness-0 invert opacity-90"
+                  className="h-3.5 w-auto object-contain filter brightness-0 invert opacity-90"
                 />
               ) : (
-                <div className="text-white text-xl md:text-lg px-8 font-medium">
+                <div className="text-white text-lg md:text-base px-8 font-medium">
                   🖤 BLACK FRIDAY · Die besten Fashion Sales · Bis zu 70% sparen
                 </div>
               )}
