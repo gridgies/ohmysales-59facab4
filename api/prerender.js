@@ -8,7 +8,8 @@ const BOT_UA = [
   /baidu/i,
   /facebookexternalhit/i,
   /twitterbot/i,
-  /linkedinbot/i
+  /linkedinbot/i,
+  /prerender/i
 ];
 
 export default async function handler(req) {
