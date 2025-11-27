@@ -9,7 +9,7 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": "(?i)(googlebot|bingbot|duckduckbot|yandex|baidu|facebookexternalhit|twitterbot|linkedinbot)"
+          "value": "(?i)(googlebot|bingbot|duckduckbot|yandex|baidu|facebookexternalhit|twitterbot|linkedinbot|prerender)"
         }
       ],
       "destination": "/api/prerender"
