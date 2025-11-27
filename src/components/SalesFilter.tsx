@@ -44,15 +44,6 @@ const SalesFilter = ({
 }: SalesFilterProps) => {
   return (
     <div className="space-y-4 mb-6">
-      {/* Stats Bar */}
-      {filteredCount > 0 && (
-        <p className="text-sm text-muted-foreground">
-          <span className="font-semibold text-foreground">{filteredCount}</span> aktive Fashion Deals{" "}
-          {selectedCategory !== "all" && `in ${CATEGORIES.find(c => c.value === selectedCategory)?.label || selectedCategory}`}
-          {selectedRetailer !== "all" && ` bei ${selectedRetailer}`}
-        </p>
-      )}
-
       {/* Filters & Toggle */}
       <div className="flex flex-wrap items-center gap-2">
       <Select value={selectedCategory} onValueChange={onCategoryChange}>
