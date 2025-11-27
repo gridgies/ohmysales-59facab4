@@ -12,7 +12,6 @@
       "destination": "/api/prerender"
     }
   ],
-
   "headers": [
     {
       "source": "/sitemap.xml",
