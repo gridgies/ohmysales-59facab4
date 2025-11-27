@@ -169,7 +169,7 @@ const SalesGrid = ({ searchQuery }: SalesGridProps) => {
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-6 py-8">
+    <section className="max-w-7xl mx-auto px-6 py-8 bg-gray-50">
       <SalesFilter
         selectedCategory={selectedCategory}
         selectedDiscount={selectedDiscount}
@@ -192,7 +192,7 @@ const SalesGrid = ({ searchQuery }: SalesGridProps) => {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredSales.map((sale) => (
             <SaleCard
               key={sale.id}

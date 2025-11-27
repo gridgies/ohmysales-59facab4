@@ -58,10 +58,10 @@ const SaleCard = ({
   return (
     <Link to={`/sale/${id}`}>
       <article
-        className={`bg-card border border-border overflow-hidden transition-all duration-300 relative ${
+        className={`bg-white border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 relative shadow-sm ${
           isExpired
             ? 'opacity-60'
-            : 'hover:border-primary/40 hover:shadow-lg'
+            : 'hover:border-primary/40 hover:shadow-xl hover:-translate-y-1'
         } group ${featured ? 'border-t-4 border-t-primary' : ''}`}
       >
       {/* Hot Badge - Top Left */}
@@ -136,6 +136,7 @@ const SaleCard = ({
           <img
             src={image}
             alt={title}
+            loading="lazy"
             className={`w-full h-full object-contain transition-transform duration-500 ${
               isExpired ? 'grayscale' : 'group-hover:scale-105'
             }`}
@@ -151,12 +152,13 @@ const SaleCard = ({
       )}
 
       {/* Content */}
-      <div className={`p-4 space-y-3 ${isExpired ? 'grayscale' : ''}`}>
+      <div className={`p-5 space-y-3 ${isExpired ? 'grayscale' : ''}`}>
         {/* Retailer Logo */}
         <div className="flex items-center justify-center">
           <img
             src={logo}
             alt={retailer}
+            loading="lazy"
             className="h-8 object-contain"
           />
         </div>
