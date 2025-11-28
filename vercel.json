@@ -1,7 +1,7 @@
 {
   "rewrites": [
     {
-      "source": "/((?!api/).*)",
+      "source": "/(.*)",
       "has": [
         {
           "type": "header",
@@ -9,7 +9,7 @@
           "value": "(?i)(googlebot|bingbot|duckduckbot|yandex|baidu|facebookexternalhit|twitterbot|linkedinbot|prerender)"
         }
       ],
-      "destination": "/api/prerender"
+      "destination": "/api/prerender?path=/$1"
     }
   ],
   "headers": [
