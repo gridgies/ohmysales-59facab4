@@ -1,66 +1,31 @@
-export const config = { runtime: "edge" };
-
-/**
- * A list of bots/user agents that should be prerendered.
- * Add or remove entries as needed.
- */
-const BOT_UA = [
-  /googlebot/i,
-  /bingbot/i,
-  /yandex/i,
-  /duckduckbot/i,
-  /baidu/i,
-  /facebookexternalhit/i,
-  /twitterbot/i,
-  /linkedinbot/i,
-  /prerender/i
-];
-
-function isBot(ua = "") {
-  if (!ua) return false;
-  return BOT_UA.some((r) => r.test(ua));
-}
-
-/**
- * Edge function: proxies bot requests to Prerender service,
- * lets normal users fetch the app as usual.
- */
-export default async function handler(req) {
+export default async function handler(req, res) {
+  const prerenderToken = 'ohc3SqKlfCGlRnEoaJUV';
+  const prerenderUrl = 'https://service.prerender.io';
+  
+  // Get the original URL that was requested
+  const protocol = req.headers['x-forwarded-proto'] || 'https';
+  const host = req.headers['x-forwarded-host'] || req.headers.host;
+  const url = `${protocol}://${host}${req.url.replace('/api/prerender', '')}`;
+  
   try {
-    const ua = req.headers.get("user-agent") || "";
-    const url = new URL(req.url);
-
-    // If not a bot, just let the request pass through to static assets / SPA
-    if (!isBot(ua)) {
-      // Proxy the original request as-is (keeps method / headers)
-      return fetch(req);
-    }
-
-    // Build the Prerender service URL
-    const prerenderUrl = `https://service.prerender.io${url.pathname}${url.search}`;
-
-    const prerenderRes = await fetch(prerenderUrl, {
-      method: "GET",
+    // Forward the request to Prerender.io
+    const prerenderResponse = await fetch(`${prerenderUrl}/${encodeURIComponent(url)}`, {
       headers: {
-        "User-Agent": ua,
-        "X-Prerender-Token": process.env.PRERENDER_TOKEN || ""
+        'X-Prerender-Token': prerenderToken,
+        'User-Agent': req.headers['user-agent'] || ''
       }
     });
-
-    const html = await prerenderRes.text();
-
-    // Relay the prerendered HTML back to the crawler
-    const headers = new Headers();
-    headers.set("Content-Type", "text/html; charset=utf-8");
-    // Optional: allow Vercel to cache prerendered responses if you want
-    headers.set("Cache-Control", "public, max-age=0, must-revalidate");
-
-    return new Response(html, {
-      status: prerenderRes.status,
-      headers
-    });
-  } catch (err) {
-    // Fail safe: return a server error so crawling doesn't silently succeed with SPA
-    return new Response("Prerender proxy error", { status: 500 });
+    
+    // Get the prerendered HTML
+    const html = await prerenderResponse.text();
+    
+    // Send it back to the bot
+    res.setHeader('Content-Type', 'text/html');
+    res.status(prerenderResponse.status).send(html);
+    
+  } catch (error) {
+    console.error('Prerender error:', error);
+    // If Prerender fails, return 500 error
+    res.status(500).send('Prerender service error');
   }
 }
