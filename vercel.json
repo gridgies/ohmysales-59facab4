@@ -1,13 +1,7 @@
 {
+  "framework": "nextjs",
   "buildCommand": "npm run build",
-  "framework": null,
-  "outputDirectory": "dist",
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ],
+  "outputDirectory": ".next",
   "headers": [
     {
       "source": "/sitemap.xml",
