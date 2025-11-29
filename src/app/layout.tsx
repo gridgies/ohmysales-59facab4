@@ -1,15 +1,8 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
-
-const inter = Inter({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600'],
-  variable: '--font-inter',
-});
 
 export const metadata: Metadata = {
   title: 'Black Friday Fashion Sales 2025 | Spare bis zu 70% | ohmysales',
@@ -222,7 +215,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://jasjuplwustlcawvigdr.supabase.co" />
         <link rel="dns-prefetch" href="https://jasjuplwustlcawvigdr.supabase.co" />
       </head>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className="font-sans antialiased">
         <Providers>
           {children}
           <Analytics />

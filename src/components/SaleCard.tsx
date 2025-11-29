@@ -17,7 +17,6 @@ interface SaleCardProps {
   endDate: string;
   url: string;
   featured?: boolean;
-  categories?: string[];
   isExpired?: boolean;
   commentCount?: number;
 }
@@ -41,7 +40,6 @@ const SaleCard = ({
   endDate,
   url,
   featured = false,
-  categories = [],
   isExpired = false,
   commentCount = 0,
 }: SaleCardProps) => {

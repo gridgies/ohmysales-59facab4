@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { Upload, Download, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
+type SaleCategory = "women" | "men" | "accessories" | "unisex";
+
 interface SaleData {
   retailer: string;
   logo: string;
@@ -18,7 +20,7 @@ interface SaleData {
   endDate: string;
   url: string;
   featured?: boolean;
-  categories: string[];
+  category: SaleCategory;
 }
 
 interface BulkUploadProps {
@@ -42,7 +44,7 @@ const BulkUpload = ({ onSuccess }: BulkUploadProps) => {
       endDate: "2025-11-11",
       url: "https://www2.hm.com/de_de/sale.html",
       featured: true,
-      categories: ["women", "men"]
+      category: "women"
     },
     {
       retailer: "Zalando",
@@ -54,7 +56,7 @@ const BulkUpload = ({ onSuccess }: BulkUploadProps) => {
       endDate: "2025-11-15",
       url: "https://www.zalando.de",
       featured: false,
-      categories: ["women", "accessories"]
+      category: "accessories"
     }
   ];
 
@@ -90,8 +92,10 @@ const BulkUpload = ({ onSuccess }: BulkUploadProps) => {
     if (!sale.url || typeof sale.url !== 'string' || !sale.url.startsWith('http')) {
       errors.push(`${prefix} Valid URL is required`);
     }
-    if (!Array.isArray(sale.categories) || sale.categories.length === 0) {
-      errors.push(`${prefix} At least one category is required`);
+    if (!sale.category || typeof sale.category !== 'string') {
+      errors.push(`${prefix} Category is required`);
+    } else if (!['women', 'men', 'accessories', 'unisex'].includes(sale.category)) {
+      errors.push(`${prefix} Category must be one of: women, men, accessories, unisex`);
     }
 
     return errors;
@@ -144,7 +148,7 @@ const BulkUpload = ({ onSuccess }: BulkUploadProps) => {
         end_date: sale.endDate,
         url: sale.url.trim(),
         featured: sale.featured || false,
-        categories: sale.categories
+        category: sale.category
       }));
 
       const { error } = await supabase.from("sales").insert(salesData);
@@ -289,7 +293,7 @@ const BulkUpload = ({ onSuccess }: BulkUploadProps) => {
             <li><strong>endDate</strong> (required): Format: YYYY-MM-DD</li>
             <li><strong>url</strong> (required): Sale page URL</li>
             <li><strong>featured</strong> (optional): true/false (default: false)</li>
-            <li><strong>categories</strong> (required): Array like ["women", "men", "beauty", "accessories"]</li>
+            <li><strong>category</strong> (required): One of: "women", "men", "accessories", "unisex"</li>
           </ul>
         </div>
       </CardContent>

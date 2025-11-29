@@ -521,7 +521,7 @@ const Admin = () => {
                       <Label className="font-light">Category</Label>
                       <Select
                         value={formData.category}
-                        onValueChange={(value) => setFormData({ ...formData, category: value })}
+                        onValueChange={(value) => setFormData({ ...formData, category: value as SaleCategory })}
                       >
                         <SelectTrigger className="font-light">
                           <SelectValue placeholder="Select category" />

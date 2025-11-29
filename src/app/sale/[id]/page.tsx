@@ -20,8 +20,7 @@ interface Sale {
   end_date: string;
   url: string;
   featured: boolean;
-  categories: string[];
-  description: string | null;
+  category: string;
   created_at: string;
 }
 
@@ -46,9 +45,7 @@ export async function generateMetadata({
     };
   }
 
-  const description = sale.description
-    ? `${sale.title} - ${sale.description.substring(0, 150)}`
-    : `${sale.discount} bei ${sale.retailer}! ${sale.title}. Jetzt sparen auf ohmysales.app`;
+  const description = `${sale.discount} bei ${sale.retailer}! ${sale.title}. Jetzt sparen auf ohmysales.app`;
 
   return {
     title: `${sale.discount} ${sale.retailer} Sale | ohmysales`,

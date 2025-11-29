@@ -25,8 +25,7 @@ interface Sale {
   end_date: string;
   url: string;
   featured: boolean;
-  categories: string[];
-  description: string | null;
+  category: string;
   created_at: string;
 }
 
@@ -67,7 +66,8 @@ export default function SaleDetailClient({ initialSale }: SaleDetailClientProps)
   }, [initialSale.id]);
 
   const fetchComments = async () => {
-    const { data, error } = await supabase
+    // @ts-ignore - sale_comments table not in generated types
+    const response: any = await (supabase as any)
       .from("sale_comments")
       .select(`
         *,
@@ -77,6 +77,8 @@ export default function SaleDetailClient({ initialSale }: SaleDetailClientProps)
       `)
       .eq("sale_id", initialSale.id)
       .order("created_at", { ascending: false });
+
+    const { data, error } = response;
 
     if (error) {
       console.error("Error fetching comments:", error);
@@ -102,7 +104,8 @@ export default function SaleDetailClient({ initialSale }: SaleDetailClientProps)
 
     setIsSubmitting(true);
 
-    const { error } = await supabase
+    // @ts-ignore - sale_comments table not in generated types
+    const { error } = await (supabase as any)
       .from("sale_comments")
       .insert({
         sale_id: initialSale.id,
@@ -186,17 +189,14 @@ export default function SaleDetailClient({ initialSale }: SaleDetailClientProps)
               <h2 className="text-xl font-medium">{initialSale.retailer}</h2>
             </div>
 
-            {/* Categories */}
-            {initialSale.categories && initialSale.categories.length > 0 && (
+            {/* Category */}
+            {initialSale.category && (
               <div className="flex flex-wrap gap-2">
-                {initialSale.categories.map((category) => (
-                  <span
-                    key={category}
-                    className="px-3 py-1 text-xs uppercase tracking-wider bg-muted/50 text-muted-foreground border border-border"
-                  >
-                    {CATEGORY_LABELS[category] || category}
-                  </span>
-                ))}
+                <span
+                  className="px-3 py-1 text-xs uppercase tracking-wider bg-muted/50 text-muted-foreground border border-border"
+                >
+                  {CATEGORY_LABELS[initialSale.category] || initialSale.category}
+                </span>
               </div>
             )}
 
@@ -317,16 +317,6 @@ export default function SaleDetailClient({ initialSale }: SaleDetailClientProps)
             </a>
           </div>
         </div>
-
-        {/* Description Section */}
-        {initialSale.description && (
-          <div className="mb-12 pb-12 border-b border-border">
-            <h2 className="text-2xl font-bold mb-4">Details</h2>
-            <div className="prose prose-sm max-w-none text-muted-foreground">
-              <p className="whitespace-pre-wrap">{initialSale.description}</p>
-            </div>
-          </div>
-        )}
 
         {/* Comments Section */}
         <div>
