@@ -43,8 +43,7 @@ const saleSchema = z.object({
   }),
   url: z.string().url("Invalid sale URL").max(1000, "Sale URL max 1000 characters"),
   category: z.enum(["women", "men", "accessories", "unisex"], {
-    required_error: "Category is required",
-    invalid_type_error: "Invalid category selected"
+    message: "Category is required"
   }),
   featured: z.boolean()
 });
