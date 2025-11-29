@@ -98,7 +98,7 @@ const Admin = () => {
     if (!loading && (!user || !isAdmin)) {
       router.push("/auth");
     }
-  }, [user, isAdmin, loading, navigate]);
+  }, [user, isAdmin, loading, router]);
 
   useEffect(() => {
     if (user && isAdmin) {
