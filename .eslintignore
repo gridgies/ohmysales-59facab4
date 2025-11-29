@@ -1,8 +1,3 @@
-# Ignore old files
-src/pages.old/
-backup.old/
-retailer-management/
-
 # Ignore build outputs
 .next/
 out/
@@ -10,4 +5,3 @@ dist/
 
 # Ignore config files
 *.config.js
-*.config.ts.old
