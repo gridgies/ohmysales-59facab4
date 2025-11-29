@@ -19,15 +19,15 @@ import RetailerManagement from "@/components/RetailerManagement";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { z } from "zod";
 
-// Define available categories - add new ones here
-const AVAILABLE_CATEGORIES = [
+// Category type must match database enum
+type SaleCategory = "women" | "men" | "accessories" | "unisex";
+
+// Define available categories - these must match the database enum
+const AVAILABLE_CATEGORIES: { value: SaleCategory; label: string }[] = [
   { value: 'women', label: 'Women' },
   { value: 'men', label: 'Men' },
   { value: 'accessories', label: 'Accessories' },
-  { value: 'beauty', label: 'Beauty' },
-  // Add more categories as needed:
-  // { value: 'kids', label: 'Kids' },
-  // { value: 'home', label: 'Home' },
+  { value: 'unisex', label: 'Unisex' },
 ];
 
 const saleSchema = z.object({
@@ -42,7 +42,9 @@ const saleSchema = z.object({
     message: "End date must be today or in the future"
   }),
   url: z.string().url("Invalid sale URL").max(1000, "Sale URL max 1000 characters"),
-  category: z.string().min(1, "Category is required"),
+  category: z.enum(["women", "men", "accessories", "unisex"], {
+    errorMap: () => ({ message: "Category is required" })
+  }),
   featured: z.boolean()
 });
 
@@ -54,7 +56,7 @@ interface Sale {
   title: string;
   discount: string;
   code: string | null;
-  category: string;
+  category: SaleCategory;
   start_date: string;
   end_date: string;
   url: string;
@@ -79,7 +81,19 @@ const Admin = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editingSale, setEditingSale] = useState<Sale | null>(null);
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    retailer: string;
+    logo: string;
+    image: string;
+    title: string;
+    discount: string;
+    code: string;
+    start_date: string;
+    end_date: string;
+    url: string;
+    featured: boolean;
+    category: SaleCategory | "";
+  }>({
     retailer: "",
     logo: "",
     image: "",
