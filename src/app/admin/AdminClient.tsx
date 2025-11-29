@@ -42,7 +42,7 @@ const saleSchema = z.object({
     message: "End date must be today or in the future"
   }),
   url: z.string().url("Invalid sale URL").max(1000, "Sale URL max 1000 characters"),
-  categories: z.array(z.string()).min(1, "At least one category is required"),
+  category: z.string().min(1, "Category is required"),
   featured: z.boolean()
 });
 
@@ -54,13 +54,14 @@ interface Sale {
   title: string;
   discount: string;
   code: string | null;
-  description: string | null;
+  category: string;
   start_date: string;
   end_date: string;
   url: string;
-  featured: boolean;
-  categories: string[];
+  featured: boolean | null;
   is_manually_expired: boolean | null;
+  created_at: string;
+  updated_at: string;
 }
 
 interface Retailer {
@@ -85,12 +86,11 @@ const Admin = () => {
     title: "",
     discount: "",
     code: "",
-    description: "",
     start_date: new Date().toISOString().split('T')[0], // Default to today
     end_date: "",
     url: "",
     featured: false,
-    categories: [] as string[],
+    category: "",
   });
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
@@ -143,25 +143,15 @@ const Admin = () => {
       title: "",
       discount: "",
       code: "",
-      description: "",
       start_date: new Date().toISOString().split('T')[0], // Reset to today
       end_date: "",
       url: "",
       featured: false,
-      categories: [],
+      category: "",
     });
     setValidationErrors({});
     setIsEditing(false);
     setEditingSale(null);
-  };
-
-  const handleCategoryToggle = (categoryValue: string) => {
-    setFormData(prev => {
-      const categories = prev.categories.includes(categoryValue)
-        ? prev.categories.filter(c => c !== categoryValue)
-        : [...prev.categories, categoryValue];
-      return { ...prev, categories };
-    });
   };
 
   const handleRetailerSelect = (retailer: Retailer) => {
@@ -199,7 +189,6 @@ const Admin = () => {
       ...formData,
       image: formData.image || null,
       code: formData.code || null,
-      description: formData.description || null,
     };
 
     if (editingSale) {
@@ -235,12 +224,11 @@ const Admin = () => {
       title: sale.title,
       discount: sale.discount,
       code: sale.code || "",
-      description: sale.description || "",
       start_date: sale.start_date,
       end_date: sale.end_date,
       url: sale.url,
-      featured: sale.featured,
-      categories: sale.categories || [],
+      featured: sale.featured || false,
+      category: sale.category,
     });
     setEditingSale(sale);
     setIsEditing(true);
@@ -464,20 +452,6 @@ const Admin = () => {
                     </div>
 
                     <div>
-                      <Label className="font-light">Description (optional)</Label>
-                      <Textarea
-                        value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        className="font-light"
-                        rows={4}
-                        placeholder="Detaillierte Beschreibung des Sales (wird auf der Detail-Seite angezeigt)"
-                      />
-                      {validationErrors.description && (
-                        <p className="text-sm text-destructive mt-1">{validationErrors.description}</p>
-                      )}
-                    </div>
-
-                    <div>
                       <Label className="font-light">Start Date</Label>
                       <Input
                         type="date"
@@ -519,26 +493,24 @@ const Admin = () => {
                     </div>
 
                     <div>
-                      <Label className="font-light mb-3 block">Categories (select at least one)</Label>
-                      <div className="space-y-2 border border-border p-4 rounded-md">
-                        {AVAILABLE_CATEGORIES.map((category) => (
-                          <div key={category.value} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={category.value}
-                              checked={formData.categories.includes(category.value)}
-                              onCheckedChange={() => handleCategoryToggle(category.value)}
-                            />
-                            <label
-                              htmlFor={category.value}
-                              className="text-sm font-light leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                            >
+                      <Label className="font-light">Category</Label>
+                      <Select
+                        value={formData.category}
+                        onValueChange={(value) => setFormData({ ...formData, category: value })}
+                      >
+                        <SelectTrigger className="font-light">
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {AVAILABLE_CATEGORIES.map((category) => (
+                            <SelectItem key={category.value} value={category.value}>
                               {category.label}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                      {validationErrors.categories && (
-                        <p className="text-sm text-destructive mt-1">{validationErrors.categories}</p>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {validationErrors.category && (
+                        <p className="text-sm text-destructive mt-1">{validationErrors.category}</p>
                       )}
                     </div>
 
@@ -617,7 +589,7 @@ const Admin = () => {
                             </div>
                           </div>
                           <div className="text-sm text-muted-foreground font-light">
-                            {sale.discount} • {sale.categories.map(getCategoryLabel).join(', ')} • {sale.start_date} - {sale.end_date}
+                            {sale.discount} • {getCategoryLabel(sale.category)} • {sale.start_date} - {sale.end_date}
                           </div>
                         </div>
                       );
