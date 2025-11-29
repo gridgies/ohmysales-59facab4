@@ -1,5 +1,7 @@
+'use client';
+
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Copy, Check, ChevronUp, ChevronDown, Flame, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useRating } from "@/hooks/useRating";
@@ -56,7 +58,7 @@ const SaleCard = ({
   };
 
   return (
-    <Link to={`/sale/${id}`}>
+    <Link href={`/sale/${id}`}>
       <article
         className={`bg-white border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 relative shadow-sm ${
           isExpired
