@@ -183,8 +183,9 @@ const Admin = () => {
     setValidationErrors({});
 
     // Validate form data
+    let validatedData;
     try {
-      saleSchema.parse(formData);
+      validatedData = saleSchema.parse(formData);
     } catch (err) {
       if (err instanceof z.ZodError) {
         const errors: Record<string, string> = {};
@@ -197,12 +198,22 @@ const Admin = () => {
         toast.error("Please check your inputs");
         return;
       }
+      return;
     }
 
+    // Use validated data - category is now guaranteed to be one of the enum values
     const saleData = {
-      ...formData,
-      image: formData.image || null,
-      code: formData.code || null,
+      retailer: validatedData.retailer,
+      logo: validatedData.logo,
+      image: validatedData.image || null,
+      title: validatedData.title,
+      discount: validatedData.discount,
+      code: validatedData.code || null,
+      start_date: validatedData.start_date,
+      end_date: validatedData.end_date,
+      url: validatedData.url,
+      category: validatedData.category as SaleCategory, // Type assertion after validation
+      featured: validatedData.featured,
     };
 
     if (editingSale) {
