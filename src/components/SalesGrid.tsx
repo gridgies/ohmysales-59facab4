@@ -60,8 +60,8 @@ const SalesGrid = ({ searchQuery }: SalesGridProps) => {
 
     // Extract unique retailers
     const uniqueRetailers = Array.from(
-      new Set(data?.map((sale) => sale.retailer) || [])
-    ).sort();
+      new Set(data?.map((sale: any) => sale.retailer) || [])
+    ).sort() as string[];
     setRetailers(uniqueRetailers);
   };
 
