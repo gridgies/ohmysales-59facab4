@@ -4,9 +4,13 @@ import { createClient } from '@supabase/supabase-js';
 import SaleDetailClient from './SaleDetailClient';
 
 // Initialize Supabase client for server-side data fetching
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+// Only create client if credentials are available
+const supabase = supabaseUrl && supabaseKey
+  ? createClient(supabaseUrl, supabaseKey)
+  : null;
 
 interface Sale {
   id: string;
@@ -31,6 +35,14 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
+
+  // Return default metadata if Supabase client is not available
+  if (!supabase) {
+    return {
+      title: 'Fashion Sale | ohmysales',
+      description: 'Entdecke exklusive Mode Angebote und Rabattcodes auf ohmysales.app',
+    };
+  }
 
   const { data: sale } = await supabase
     .from('sales')
@@ -70,6 +82,8 @@ export async function generateMetadata({
 
 // Server-side data fetching
 async function getSale(id: string): Promise<Sale | null> {
+  if (!supabase) return null;
+
   const { data, error } = await supabase
     .from('sales')
     .select('*')
@@ -102,6 +116,9 @@ export default async function SaleDetailPage({
 // Optional: Generate static params for better performance
 // This tells Next.js which sale pages to pre-render at build time
 export async function generateStaticParams() {
+  // Skip static generation if Supabase client is not available
+  if (!supabase) return [];
+
   const { data: sales } = await supabase
     .from('sales')
     .select('id')
