@@ -251,7 +251,7 @@ const Admin = () => {
       end_date: sale.end_date,
       url: sale.url,
       featured: sale.featured || false,
-      categories: sale.categories,
+      categories: sale.categories as SaleCategory[],
     });
     setEditingSale(sale);
     setIsEditing(true);
