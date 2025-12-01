@@ -55,7 +55,7 @@ const ScrollingBanner = () => {
                 />
               ) : (
                 <div className="text-white text-lg md:text-base px-8 font-medium">
-                  🖤 BLACK FRIDAY · Die besten Fashion Sales · Bis zu 70% sparen
+                  💻 CYBER MONDAY · Die besten Fashion Sales · Bis zu 70% sparen
                 </div>
               )}
             </div>
@@ -74,7 +74,7 @@ const ScrollingBanner = () => {
                 />
               ) : (
                 <div className="text-white text-lg md:text-base px-8 font-medium">
-                  🖤 BLACK FRIDAY · Die besten Fashion Sales · Bis zu 70% sparen
+                  💻 CYBER MONDAY · Die besten Fashion Sales · Bis zu 70% sparen
                 </div>
               )}
             </div>
