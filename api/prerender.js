@@ -1,36 +1,54 @@
+/**
+ * Vercel Serverless Function for Prerender.io Integration
+ *
+ * Note: With Next.js 15 SSR, this is no longer needed but kept for legacy compatibility
+ */
+
 export default async function handler(req, res) {
-  const prerenderToken = 'ohc3SqKlfCGlRnEoaJUV';
-  const prerenderUrl = 'https://service.prerender.io';
-  
-  // Get the original path from query parameter
-  const path = req.query.path || '/';
-  const protocol = req.headers['x-forwarded-proto'] || 'https';
-  const host = req.headers['x-forwarded-host'] || req.headers.host;
-  const url = `${protocol}://${host}${path}`;
-  
-  console.log('Prerender request for:', url);
-  
+  const prerenderToken = process.env.PRERENDER_TOKEN;
+
+  if (!prerenderToken) {
+    return res.status(500).json({
+      error: 'PRERENDER_TOKEN not configured',
+      message: 'Add PRERENDER_TOKEN to Vercel environment variables'
+    });
+  }
+
+  const { url } = req.query;
+
+  if (!url) {
+    return res.status(400).json({
+      error: 'Missing URL parameter',
+      message: 'Usage: /api/prerender?url=https://ohmysales.app/sale/123'
+    });
+  }
+
   try {
-    // Forward the request to Prerender.io
-    const prerenderResponse = await fetch(`${prerenderUrl}/${encodeURIComponent(url)}`, {
+    const prerenderUrl = `https://service.prerender.io/${encodeURIComponent(url)}`;
+
+    const response = await fetch(prerenderUrl, {
       headers: {
-        'X-Prerender-Token': prerenderToken,
-        'User-Agent': req.headers['user-agent'] || ''
+        'X-Prerender-Token': prerenderToken
       }
     });
-    
-    console.log('Prerender response status:', prerenderResponse.status);
-    
-    // Get the prerendered HTML
-    const html = await prerenderResponse.text();
-    
-    // Send it back to the bot
-    res.setHeader('Content-Type', 'text/html');
-    res.status(prerenderResponse.status).send(html);
-    
+
+    if (!response.ok) {
+      return res.status(response.status).json({
+        error: 'Prerender.io error',
+        status: response.status
+      });
+    }
+
+    const html = await response.text();
+
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('X-Prerender', 'true');
+    return res.send(html);
+
   } catch (error) {
-    console.error('Prerender error:', error);
-    // If Prerender fails, return 500 error
-    res.status(500).send('Prerender service error');
+    return res.status(500).json({
+      error: 'Failed to fetch pre-rendered content',
+      message: error.message
+    });
   }
 }

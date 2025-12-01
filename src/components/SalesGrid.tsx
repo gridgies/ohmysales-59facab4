@@ -16,7 +16,7 @@ interface Sale {
   end_date: string;
   url: string;
   featured: boolean;
-  categories: string[]; // Changed from category: string to categories: string[]
+  category: string;
   is_manually_expired: boolean | null;
   created_at?: string;
 }
@@ -60,13 +60,14 @@ const SalesGrid = ({ searchQuery }: SalesGridProps) => {
 
     // Extract unique retailers
     const uniqueRetailers = Array.from(
-      new Set(data?.map((sale) => sale.retailer) || [])
-    ).sort();
+      new Set(data?.map((sale: any) => sale.retailer) || [])
+    ).sort() as string[];
     setRetailers(uniqueRetailers);
   };
 
   const fetchCommentCounts = async () => {
-    const { data, error } = await supabase
+    // @ts-ignore - sale_comment_counts view not in generated types
+    const { data, error } = await (supabase as any)
       .from("sale_comment_counts")
       .select("*");
 
@@ -112,15 +113,14 @@ const SalesGrid = ({ searchQuery }: SalesGridProps) => {
         (sale) =>
           sale.retailer.toLowerCase().includes(query) ||
           sale.title.toLowerCase().includes(query) ||
-          // Search in all categories
-          sale.categories.some(cat => cat.toLowerCase().includes(query))
+          sale.category.toLowerCase().includes(query)
       );
     }
 
-    // Apply category filter - now checks if category exists in array
+    // Apply category filter
     if (selectedCategory !== "all") {
-      filtered = filtered.filter((sale) => 
-        sale.categories && sale.categories.includes(selectedCategory)
+      filtered = filtered.filter((sale) =>
+        sale.category === selectedCategory
       );
     }
 
@@ -206,7 +206,6 @@ const SalesGrid = ({ searchQuery }: SalesGridProps) => {
               endDate={formatDate(sale.end_date)}
               url={sale.url}
               featured={sale.featured}
-              categories={sale.categories}
               isExpired={isExpired(sale)}
               commentCount={commentCounts[sale.id] || 0}
             />

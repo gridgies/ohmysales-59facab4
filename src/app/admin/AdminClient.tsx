@@ -1,9 +1,12 @@
+'use client';
+
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -16,15 +19,15 @@ import RetailerManagement from "@/components/RetailerManagement";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { z } from "zod";
 
-// Define available categories - add new ones here
-const AVAILABLE_CATEGORIES = [
+// Category type must match database enum
+type SaleCategory = "women" | "men" | "accessories" | "unisex";
+
+// Define available categories - these must match the database enum
+const AVAILABLE_CATEGORIES: { value: SaleCategory; label: string }[] = [
   { value: 'women', label: 'Women' },
   { value: 'men', label: 'Men' },
   { value: 'accessories', label: 'Accessories' },
-  { value: 'beauty', label: 'Beauty' },
-  // Add more categories as needed:
-  // { value: 'kids', label: 'Kids' },
-  // { value: 'home', label: 'Home' },
+  { value: 'unisex', label: 'Unisex' },
 ];
 
 const saleSchema = z.object({
@@ -39,7 +42,9 @@ const saleSchema = z.object({
     message: "End date must be today or in the future"
   }),
   url: z.string().url("Invalid sale URL").max(1000, "Sale URL max 1000 characters"),
-  categories: z.array(z.string()).min(1, "At least one category is required"),
+  category: z.enum(["women", "men", "accessories", "unisex"], {
+    message: "Category is required"
+  }),
   featured: z.boolean()
 });
 
@@ -51,12 +56,14 @@ interface Sale {
   title: string;
   discount: string;
   code: string | null;
+  category: SaleCategory;
   start_date: string;
   end_date: string;
   url: string;
-  featured: boolean;
-  categories: string[];
+  featured: boolean | null;
   is_manually_expired: boolean | null;
+  created_at: string;
+  updated_at: string;
 }
 
 interface Retailer {
@@ -68,13 +75,25 @@ interface Retailer {
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [sales, setSales] = useState<Sale[]>([]);
   const [retailers, setRetailers] = useState<Retailer[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editingSale, setEditingSale] = useState<Sale | null>(null);
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    retailer: string;
+    logo: string;
+    image: string;
+    title: string;
+    discount: string;
+    code: string;
+    start_date: string;
+    end_date: string;
+    url: string;
+    featured: boolean;
+    category: SaleCategory | "";
+  }>({
     retailer: "",
     logo: "",
     image: "",
@@ -85,15 +104,15 @@ const Admin = () => {
     end_date: "",
     url: "",
     featured: false,
-    categories: [] as string[],
+    category: "",
   });
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!loading && (!user || !isAdmin)) {
-      navigate("/auth");
+      router.push("/auth");
     }
-  }, [user, isAdmin, loading, navigate]);
+  }, [user, isAdmin, loading, router]);
 
   useEffect(() => {
     if (user && isAdmin) {
@@ -142,20 +161,11 @@ const Admin = () => {
       end_date: "",
       url: "",
       featured: false,
-      categories: [],
+      category: "",
     });
     setValidationErrors({});
     setIsEditing(false);
     setEditingSale(null);
-  };
-
-  const handleCategoryToggle = (categoryValue: string) => {
-    setFormData(prev => {
-      const categories = prev.categories.includes(categoryValue)
-        ? prev.categories.filter(c => c !== categoryValue)
-        : [...prev.categories, categoryValue];
-      return { ...prev, categories };
-    });
   };
 
   const handleRetailerSelect = (retailer: Retailer) => {
@@ -173,8 +183,9 @@ const Admin = () => {
     setValidationErrors({});
 
     // Validate form data
+    let validatedData;
     try {
-      saleSchema.parse(formData);
+      validatedData = saleSchema.parse(formData);
     } catch (err) {
       if (err instanceof z.ZodError) {
         const errors: Record<string, string> = {};
@@ -187,12 +198,22 @@ const Admin = () => {
         toast.error("Please check your inputs");
         return;
       }
+      return;
     }
 
+    // Use validated data - category is now guaranteed to be one of the enum values
     const saleData = {
-      ...formData,
-      image: formData.image || null,
-      code: formData.code || null,
+      retailer: validatedData.retailer,
+      logo: validatedData.logo,
+      image: validatedData.image || null,
+      title: validatedData.title,
+      discount: validatedData.discount,
+      code: validatedData.code || null,
+      start_date: validatedData.start_date,
+      end_date: validatedData.end_date,
+      url: validatedData.url,
+      category: validatedData.category as SaleCategory, // Type assertion after validation
+      featured: validatedData.featured,
     };
 
     if (editingSale) {
@@ -231,8 +252,8 @@ const Admin = () => {
       start_date: sale.start_date,
       end_date: sale.end_date,
       url: sale.url,
-      featured: sale.featured,
-      categories: sale.categories || [],
+      featured: sale.featured || false,
+      category: sale.category,
     });
     setEditingSale(sale);
     setIsEditing(true);
@@ -315,7 +336,7 @@ const Admin = () => {
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-light text-foreground">Admin Dashboard</h1>
-          <Button onClick={() => navigate("/")} variant="outline" className="font-light">
+          <Button onClick={() => router.push("/")} variant="outline" className="font-light">
             Back to Website
           </Button>
         </div>
@@ -497,26 +518,24 @@ const Admin = () => {
                     </div>
 
                     <div>
-                      <Label className="font-light mb-3 block">Categories (select at least one)</Label>
-                      <div className="space-y-2 border border-border p-4 rounded-md">
-                        {AVAILABLE_CATEGORIES.map((category) => (
-                          <div key={category.value} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={category.value}
-                              checked={formData.categories.includes(category.value)}
-                              onCheckedChange={() => handleCategoryToggle(category.value)}
-                            />
-                            <label
-                              htmlFor={category.value}
-                              className="text-sm font-light leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                            >
+                      <Label className="font-light">Category</Label>
+                      <Select
+                        value={formData.category}
+                        onValueChange={(value) => setFormData({ ...formData, category: value as SaleCategory })}
+                      >
+                        <SelectTrigger className="font-light">
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {AVAILABLE_CATEGORIES.map((category) => (
+                            <SelectItem key={category.value} value={category.value}>
                               {category.label}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                      {validationErrors.categories && (
-                        <p className="text-sm text-destructive mt-1">{validationErrors.categories}</p>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {validationErrors.category && (
+                        <p className="text-sm text-destructive mt-1">{validationErrors.category}</p>
                       )}
                     </div>
 
@@ -595,7 +614,7 @@ const Admin = () => {
                             </div>
                           </div>
                           <div className="text-sm text-muted-foreground font-light">
-                            {sale.discount} • {sale.categories.map(getCategoryLabel).join(', ')} • {sale.start_date} - {sale.end_date}
+                            {sale.discount} • {getCategoryLabel(sale.category)} • {sale.start_date} - {sale.end_date}
                           </div>
                         </div>
                       );

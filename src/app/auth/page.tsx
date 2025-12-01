@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+'use client';
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,19 +13,20 @@ const authSchema = z.object({
   password: z.string().min(6, { message: "Passwort muss mindestens 6 Zeichen lang sein" }).max(100),
 });
 
-const Auth = () => {
+export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const { signIn, signUp, user } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   // Redirect if already logged in
-  if (user) {
-    navigate("/");
-    return null;
-  }
+  useEffect(() => {
+    if (user) {
+      router.push("/");
+    }
+  }, [user, router]);
 
   const validateForm = () => {
     try {
@@ -45,7 +48,7 @@ const Auth = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     try {
@@ -54,11 +57,15 @@ const Auth = () => {
       } else {
         await signIn(email, password);
       }
-      navigate("/");
+      router.push("/");
     } catch (error) {
       // Error handling is done in useAuth
     }
   };
+
+  if (user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-6">
@@ -130,6 +137,4 @@ const Auth = () => {
       </div>
     </div>
   );
-};
-
-export default Auth;
+}

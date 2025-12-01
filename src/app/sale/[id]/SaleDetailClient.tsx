@@ -1,5 +1,8 @@
+'use client';
+
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ArrowLeft, Copy, Check, ChevronUp, ChevronDown, Flame, MessageCircle, Send } from "lucide-react";
@@ -22,8 +25,7 @@ interface Sale {
   end_date: string;
   url: string;
   featured: boolean;
-  categories: string[];
-  description: string | null;
+  category: string;
   created_at: string;
 }
 
@@ -46,81 +48,26 @@ const CATEGORY_LABELS: Record<string, string> = {
   unisex: 'Unisex',
 };
 
-const SaleDetail = () => {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+interface SaleDetailClientProps {
+  initialSale: Sale;
+}
+
+export default function SaleDetailClient({ initialSale }: SaleDetailClientProps) {
+  const router = useRouter();
   const { user } = useAuth();
-  const [sale, setSale] = useState<Sale | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [copied, setCopied] = useState(false);
-  const { rating, hasVoted, isLoading, voteHot, voteCold } = useRating(id || "");
+  const { rating, hasVoted, isLoading, voteHot, voteCold } = useRating(initialSale.id);
 
   useEffect(() => {
-    if (id) {
-      fetchSale();
-      fetchComments();
-    }
-  }, [id]);
-
-  // Update meta tags when sale data loads (critical for SEO)
-  useEffect(() => {
-    if (sale) {
-      // Update page title
-      document.title = `${sale.discount} ${sale.retailer} Sale | ohmysales`;
-
-      // Update meta description
-      const metaDescription = document.querySelector('meta[name="description"]');
-      if (metaDescription) {
-        const description = sale.description
-          ? `${sale.title} - ${sale.description.substring(0, 150)}`
-          : `${sale.discount} bei ${sale.retailer}! ${sale.title}. Jetzt sparen auf ohmysales.app`;
-        metaDescription.setAttribute('content', description);
-      }
-
-      // Update Open Graph tags
-      const ogTitle = document.querySelector('meta[property="og:title"]');
-      if (ogTitle) {
-        ogTitle.setAttribute('content', `${sale.discount} ${sale.retailer} | ohmysales`);
-      }
-
-      const ogDescription = document.querySelector('meta[property="og:description"]');
-      if (ogDescription) {
-        ogDescription.setAttribute('content', `${sale.title} - Spare jetzt ${sale.discount} bei ${sale.retailer}!`);
-      }
-
-      const ogImage = document.querySelector('meta[property="og:image"]');
-      if (ogImage && sale.image) {
-        ogImage.setAttribute('content', sale.image);
-      }
-
-      // Update canonical URL
-      const canonical = document.querySelector('link[rel="canonical"]');
-      if (canonical) {
-        canonical.setAttribute('href', `https://ohmysales.app/sale/${sale.id}`);
-      }
-    }
-  }, [sale]);
-
-  const fetchSale = async () => {
-    const { data, error } = await supabase
-      .from("sales")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-    if (error) {
-      toast.error("Fehler beim Laden des Sales");
-      navigate("/");
-      return;
-    }
-
-    setSale(data);
-  };
+    fetchComments();
+  }, [initialSale.id]);
 
   const fetchComments = async () => {
-    const { data, error } = await supabase
+    // @ts-ignore - sale_comments table not in generated types
+    const response: any = await (supabase as any)
       .from("sale_comments")
       .select(`
         *,
@@ -128,8 +75,10 @@ const SaleDetail = () => {
           email
         )
       `)
-      .eq("sale_id", id)
+      .eq("sale_id", initialSale.id)
       .order("created_at", { ascending: false });
+
+    const { data, error } = response;
 
     if (error) {
       console.error("Error fetching comments:", error);
@@ -144,7 +93,7 @@ const SaleDetail = () => {
 
     if (!user) {
       toast.error("Bitte melde dich an, um zu kommentieren");
-      navigate("/auth");
+      router.push("/auth");
       return;
     }
 
@@ -155,10 +104,11 @@ const SaleDetail = () => {
 
     setIsSubmitting(true);
 
-    const { error } = await supabase
+    // @ts-ignore - sale_comments table not in generated types
+    const { error } = await (supabase as any)
       .from("sale_comments")
       .insert({
-        sale_id: id,
+        sale_id: initialSale.id,
         user_id: user.id,
         content: newComment.trim(),
       });
@@ -176,8 +126,8 @@ const SaleDetail = () => {
   };
 
   const handleCopyCode = () => {
-    if (sale?.code) {
-      navigator.clipboard.writeText(sale.code);
+    if (initialSale.code) {
+      navigator.clipboard.writeText(initialSale.code);
       setCopied(true);
       toast.success("Code kopiert!");
       setTimeout(() => setCopied(false), 2000);
@@ -197,19 +147,7 @@ const SaleDetail = () => {
     return email.split("@")[0];
   };
 
-  if (!sale) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header onSearch={() => {}} />
-        <div className="max-w-7xl mx-auto px-6 py-12 text-center">
-          <p className="text-muted-foreground">Lädt...</p>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  const isExpired = new Date(sale.end_date) < new Date();
+  const isExpired = new Date(initialSale.end_date) < new Date();
 
   return (
     <div className="min-h-screen bg-background">
@@ -218,7 +156,7 @@ const SaleDetail = () => {
       <main className="max-w-5xl mx-auto px-6 py-8">
         {/* Back Button */}
         <Link
-          to="/"
+          href="/"
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -228,11 +166,11 @@ const SaleDetail = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           {/* Left Column - Image */}
           <div>
-            {sale.image && (
+            {initialSale.image && (
               <div className="border border-border overflow-hidden bg-muted/20">
                 <img
-                  src={sale.image}
-                  alt={sale.title}
+                  src={initialSale.image}
+                  alt={initialSale.title}
                   className="w-full h-auto object-contain"
                 />
               </div>
@@ -244,29 +182,26 @@ const SaleDetail = () => {
             {/* Retailer */}
             <div className="flex items-center gap-3">
               <img
-                src={sale.logo}
-                alt={sale.retailer}
+                src={initialSale.logo}
+                alt={initialSale.retailer}
                 className="h-16 w-16 object-contain"
               />
-              <h2 className="text-xl font-medium">{sale.retailer}</h2>
+              <h2 className="text-xl font-medium">{initialSale.retailer}</h2>
             </div>
 
-            {/* Categories */}
-            {sale.categories && sale.categories.length > 0 && (
+            {/* Category */}
+            {initialSale.category && (
               <div className="flex flex-wrap gap-2">
-                {sale.categories.map((category) => (
-                  <span
-                    key={category}
-                    className="px-3 py-1 text-xs uppercase tracking-wider bg-muted/50 text-muted-foreground border border-border"
-                  >
-                    {CATEGORY_LABELS[category] || category}
-                  </span>
-                ))}
+                <span
+                  className="px-3 py-1 text-xs uppercase tracking-wider bg-muted/50 text-muted-foreground border border-border"
+                >
+                  {CATEGORY_LABELS[initialSale.category] || initialSale.category}
+                </span>
               </div>
             )}
 
             {/* Title */}
-            <h1 className="text-3xl font-bold">{sale.title}</h1>
+            <h1 className="text-3xl font-bold">{initialSale.title}</h1>
 
             {/* Rating */}
             <div className="flex items-center gap-4">
@@ -329,19 +264,19 @@ const SaleDetail = () => {
 
             {/* Discount */}
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-light text-primary">{sale.discount}</span>
+              <span className="text-4xl font-light text-primary">{initialSale.discount}</span>
               <span className="text-muted-foreground font-light">Rabatt</span>
             </div>
 
             {/* Code */}
-            {sale.code && (
+            {initialSale.code && (
               <div className="border border-border p-4">
                 <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
                   Rabattcode {copied && '· Kopiert ✓'}
                 </p>
                 <div className="flex items-center gap-3">
                   <code className="flex-1 font-mono text-lg font-semibold bg-muted/50 px-3 py-2">
-                    {sale.code}
+                    {initialSale.code}
                   </code>
                   <Button
                     onClick={handleCopyCode}
@@ -361,7 +296,7 @@ const SaleDetail = () => {
 
             {/* Dates */}
             <div className="text-sm text-muted-foreground space-y-1">
-              <p>Gültig bis: <span className="font-medium text-foreground">{formatDate(sale.end_date)}</span></p>
+              <p>Gültig bis: <span className="font-medium text-foreground">{formatDate(initialSale.end_date)}</span></p>
               {isExpired && (
                 <p className="text-destructive font-medium">Dieser Sale ist abgelaufen</p>
               )}
@@ -369,7 +304,7 @@ const SaleDetail = () => {
 
             {/* CTA Button */}
             <a
-              href={sale.url}
+              href={initialSale.url}
               target="_blank"
               rel="noopener noreferrer"
               className={`inline-block w-full text-center py-3 px-6 font-medium uppercase tracking-wider transition-colors ${
@@ -382,16 +317,6 @@ const SaleDetail = () => {
             </a>
           </div>
         </div>
-
-        {/* Description Section */}
-        {sale.description && (
-          <div className="mb-12 pb-12 border-b border-border">
-            <h2 className="text-2xl font-bold mb-4">Details</h2>
-            <div className="prose prose-sm max-w-none text-muted-foreground">
-              <p className="whitespace-pre-wrap">{sale.description}</p>
-            </div>
-          </div>
-        )}
 
         {/* Comments Section */}
         <div>
@@ -418,7 +343,7 @@ const SaleDetail = () => {
           ) : (
             <div className="mb-8 p-4 border border-border bg-muted/20">
               <p className="text-sm text-muted-foreground">
-                <Link to="/auth" className="text-primary hover:underline">
+                <Link href="/auth" className="text-primary hover:underline">
                   Melde dich an
                 </Link>
                 {' '}um einen Kommentar zu schreiben.
@@ -456,6 +381,4 @@ const SaleDetail = () => {
       <Footer />
     </div>
   );
-};
-
-export default SaleDetail;
+}

@@ -1,0 +1,7 @@
+# Ignore build outputs
+.next/
+out/
+dist/
+
+# Ignore config files
+*.config.js

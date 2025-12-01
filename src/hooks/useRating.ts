@@ -76,7 +76,8 @@ export const useRating = (saleId: string) => {
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.rpc('vote_hot', {
+      // @ts-ignore - RPC return types not properly defined
+      const { data, error } = await (supabase as any).rpc('vote_hot', {
         sale_uuid: saleId,
       });
 
@@ -109,7 +110,8 @@ export const useRating = (saleId: string) => {
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.rpc('vote_cold', {
+      // @ts-ignore - RPC return types not properly defined
+      const { data, error } = await (supabase as any).rpc('vote_cold', {
         sale_uuid: saleId,
       });
 
