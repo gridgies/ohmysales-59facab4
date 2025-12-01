@@ -25,7 +25,7 @@ interface Sale {
   end_date: string;
   url: string;
   featured: boolean;
-  category: string;
+  categories: string[];
   created_at: string;
 }
 
@@ -45,7 +45,6 @@ const CATEGORY_LABELS: Record<string, string> = {
   men: 'Herren',
   accessories: 'Accessoires',
   beauty: 'Beauty',
-  unisex: 'Unisex',
 };
 
 interface SaleDetailClientProps {
@@ -189,14 +188,17 @@ export default function SaleDetailClient({ initialSale }: SaleDetailClientProps)
               <h2 className="text-xl font-medium">{initialSale.retailer}</h2>
             </div>
 
-            {/* Category */}
-            {initialSale.category && (
+            {/* Categories */}
+            {initialSale.categories && initialSale.categories.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                <span
-                  className="px-3 py-1 text-xs uppercase tracking-wider bg-muted/50 text-muted-foreground border border-border"
-                >
-                  {CATEGORY_LABELS[initialSale.category] || initialSale.category}
-                </span>
+                {initialSale.categories.map((cat) => (
+                  <span
+                    key={cat}
+                    className="px-3 py-1 text-xs uppercase tracking-wider bg-muted/50 text-muted-foreground border border-border"
+                  >
+                    {CATEGORY_LABELS[cat] || cat}
+                  </span>
+                ))}
               </div>
             )}
 

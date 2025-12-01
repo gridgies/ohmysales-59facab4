@@ -20,14 +20,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { z } from "zod";
 
 // Category type must match database enum
-type SaleCategory = "women" | "men" | "accessories" | "unisex";
+type SaleCategory = "women" | "men" | "accessories" | "beauty";
 
 // Define available categories - these must match the database enum
 const AVAILABLE_CATEGORIES: { value: SaleCategory; label: string }[] = [
   { value: 'women', label: 'Women' },
   { value: 'men', label: 'Men' },
   { value: 'accessories', label: 'Accessories' },
-  { value: 'unisex', label: 'Unisex' },
+  { value: 'beauty', label: 'Beauty' },
 ];
 
 const saleSchema = z.object({
@@ -42,9 +42,7 @@ const saleSchema = z.object({
     message: "End date must be today or in the future"
   }),
   url: z.string().url("Invalid sale URL").max(1000, "Sale URL max 1000 characters"),
-  category: z.enum(["women", "men", "accessories", "unisex"], {
-    message: "Category is required"
-  }),
+  categories: z.array(z.enum(["women", "men", "accessories", "beauty"])).min(1, "Select at least one category"),
   featured: z.boolean()
 });
 
@@ -56,7 +54,7 @@ interface Sale {
   title: string;
   discount: string;
   code: string | null;
-  category: SaleCategory;
+  categories: string[];
   start_date: string;
   end_date: string;
   url: string;
@@ -92,7 +90,7 @@ const Admin = () => {
     end_date: string;
     url: string;
     featured: boolean;
-    category: SaleCategory | "";
+    categories: SaleCategory[];
   }>({
     retailer: "",
     logo: "",
@@ -104,7 +102,7 @@ const Admin = () => {
     end_date: "",
     url: "",
     featured: false,
-    category: "",
+    categories: [],
   });
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
@@ -161,7 +159,7 @@ const Admin = () => {
       end_date: "",
       url: "",
       featured: false,
-      category: "",
+      categories: [],
     });
     setValidationErrors({});
     setIsEditing(false);
@@ -201,7 +199,7 @@ const Admin = () => {
       return;
     }
 
-    // Use validated data - category is now guaranteed to be one of the enum values
+    // Use validated data - categories are now guaranteed to be valid enum values
     const saleData = {
       retailer: validatedData.retailer,
       logo: validatedData.logo,
@@ -212,7 +210,7 @@ const Admin = () => {
       start_date: validatedData.start_date,
       end_date: validatedData.end_date,
       url: validatedData.url,
-      category: validatedData.category as SaleCategory, // Type assertion after validation
+      categories: validatedData.categories,
       featured: validatedData.featured,
     };
 
@@ -253,7 +251,7 @@ const Admin = () => {
       end_date: sale.end_date,
       url: sale.url,
       featured: sale.featured || false,
-      category: sale.category,
+      categories: sale.categories as SaleCategory[],
     });
     setEditingSale(sale);
     setIsEditing(true);
@@ -518,24 +516,38 @@ const Admin = () => {
                     </div>
 
                     <div>
-                      <Label className="font-light">Category</Label>
-                      <Select
-                        value={formData.category}
-                        onValueChange={(value) => setFormData({ ...formData, category: value as SaleCategory })}
-                      >
-                        <SelectTrigger className="font-light">
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {AVAILABLE_CATEGORIES.map((category) => (
-                            <SelectItem key={category.value} value={category.value}>
+                      <Label className="font-light">Categories (select multiple)</Label>
+                      <div className="grid grid-cols-2 gap-3 mt-2">
+                        {AVAILABLE_CATEGORIES.map((category) => (
+                          <div key={category.value} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`category-${category.value}`}
+                              checked={formData.categories.includes(category.value)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setFormData({
+                                    ...formData,
+                                    categories: [...formData.categories, category.value]
+                                  });
+                                } else {
+                                  setFormData({
+                                    ...formData,
+                                    categories: formData.categories.filter(c => c !== category.value)
+                                  });
+                                }
+                              }}
+                            />
+                            <label
+                              htmlFor={`category-${category.value}`}
+                              className="text-sm font-light cursor-pointer"
+                            >
                               {category.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {validationErrors.category && (
-                        <p className="text-sm text-destructive mt-1">{validationErrors.category}</p>
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                      {validationErrors.categories && (
+                        <p className="text-sm text-destructive mt-1">{validationErrors.categories}</p>
                       )}
                     </div>
 
@@ -614,7 +626,7 @@ const Admin = () => {
                             </div>
                           </div>
                           <div className="text-sm text-muted-foreground font-light">
-                            {sale.discount} • {getCategoryLabel(sale.category)} • {sale.start_date} - {sale.end_date}
+                            {sale.discount} • {sale.categories.map(getCategoryLabel).join(', ')} • {sale.start_date} - {sale.end_date}
                           </div>
                         </div>
                       );

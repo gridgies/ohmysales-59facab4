@@ -4,7 +4,7 @@ const Hero = () => {
       <div className="max-w-7xl mx-auto px-6 py-5">
         <div className="space-y-3">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-            🖤 BLACK FRIDAY Fashion Sales 2025
+            💻 CYBER MONDAY Fashion Sales 2025
           </h1>
           <p className="text-base text-muted-foreground max-w-3xl leading-relaxed">
             Die besten Mode Angebote und Rabattcodes für Deutschland.
