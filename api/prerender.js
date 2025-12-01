@@ -1,9 +1,7 @@
 /**
- * Vercel Serverless Function for Prerender.io Integration (Vite compatible)
+ * Vercel Serverless Function for Prerender.io Integration
  *
- * This is a fallback approach if Prerender.io's Vercel integration isn't available.
- * For best results, use Prerender.io's official Vercel integration from:
- * https://vercel.com/integrations/prerender
+ * Note: With Next.js 15 SSR, this is no longer needed but kept for legacy compatibility
  */
 
 export default async function handler(req, res) {
