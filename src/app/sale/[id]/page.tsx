@@ -24,7 +24,7 @@ interface Sale {
   end_date: string;
   url: string;
   featured: boolean;
-  category: string;
+  categories: string[];
   created_at: string;
 }
 

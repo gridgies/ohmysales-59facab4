@@ -20,7 +20,7 @@ interface SaleData {
   endDate: string;
   url: string;
   featured?: boolean;
-  category: SaleCategory;
+  categories: SaleCategory[];
 }
 
 interface BulkUploadProps {
@@ -44,7 +44,7 @@ const BulkUpload = ({ onSuccess }: BulkUploadProps) => {
       endDate: "2025-11-11",
       url: "https://www2.hm.com/de_de/sale.html",
       featured: true,
-      category: "women"
+      categories: ["women", "accessories"]
     },
     {
       retailer: "Zalando",
@@ -56,7 +56,7 @@ const BulkUpload = ({ onSuccess }: BulkUploadProps) => {
       endDate: "2025-11-15",
       url: "https://www.zalando.de",
       featured: false,
-      category: "accessories"
+      categories: ["unisex"]
     }
   ];
 
@@ -92,10 +92,16 @@ const BulkUpload = ({ onSuccess }: BulkUploadProps) => {
     if (!sale.url || typeof sale.url !== 'string' || !sale.url.startsWith('http')) {
       errors.push(`${prefix} Valid URL is required`);
     }
-    if (!sale.category || typeof sale.category !== 'string') {
-      errors.push(`${prefix} Category is required`);
-    } else if (!['women', 'men', 'accessories', 'unisex'].includes(sale.category)) {
-      errors.push(`${prefix} Category must be one of: women, men, accessories, unisex`);
+    if (!sale.categories || !Array.isArray(sale.categories)) {
+      errors.push(`${prefix} Categories must be an array`);
+    } else if (sale.categories.length === 0) {
+      errors.push(`${prefix} At least one category is required`);
+    } else {
+      const validCategories = ['women', 'men', 'accessories', 'unisex'];
+      const invalidCats = sale.categories.filter((cat: any) => !validCategories.includes(cat));
+      if (invalidCats.length > 0) {
+        errors.push(`${prefix} Invalid categories: ${invalidCats.join(', ')}. Must be one of: women, men, accessories, unisex`);
+      }
     }
 
     return errors;
@@ -148,7 +154,7 @@ const BulkUpload = ({ onSuccess }: BulkUploadProps) => {
         end_date: sale.endDate,
         url: sale.url.trim(),
         featured: sale.featured || false,
-        category: sale.category
+        categories: sale.categories
       }));
 
       const { error } = await supabase.from("sales").insert(salesData);
@@ -293,7 +299,7 @@ const BulkUpload = ({ onSuccess }: BulkUploadProps) => {
             <li><strong>endDate</strong> (required): Format: YYYY-MM-DD</li>
             <li><strong>url</strong> (required): Sale page URL</li>
             <li><strong>featured</strong> (optional): true/false (default: false)</li>
-            <li><strong>category</strong> (required): One of: "women", "men", "accessories", "unisex"</li>
+            <li><strong>categories</strong> (required): Array of: "women", "men", "accessories", "unisex" (e.g., ["women", "accessories"])</li>
           </ul>
         </div>
       </CardContent>

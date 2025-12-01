@@ -16,7 +16,7 @@ interface Sale {
   end_date: string;
   url: string;
   featured: boolean;
-  category: string;
+  categories: string[];
   is_manually_expired: boolean | null;
   created_at?: string;
 }
@@ -113,14 +113,14 @@ const SalesGrid = ({ searchQuery }: SalesGridProps) => {
         (sale) =>
           sale.retailer.toLowerCase().includes(query) ||
           sale.title.toLowerCase().includes(query) ||
-          sale.category.toLowerCase().includes(query)
+          sale.categories.some(cat => cat.toLowerCase().includes(query))
       );
     }
 
     // Apply category filter
     if (selectedCategory !== "all") {
       filtered = filtered.filter((sale) =>
-        sale.category === selectedCategory
+        sale.categories.includes(selectedCategory)
       );
     }
 
