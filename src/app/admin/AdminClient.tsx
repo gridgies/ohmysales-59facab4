@@ -20,14 +20,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { z } from "zod";
 
 // Category type must match database enum
-type SaleCategory = "women" | "men" | "accessories" | "unisex";
+type SaleCategory = "women" | "men" | "accessories" | "beauty";
 
 // Define available categories - these must match the database enum
 const AVAILABLE_CATEGORIES: { value: SaleCategory; label: string }[] = [
   { value: 'women', label: 'Women' },
   { value: 'men', label: 'Men' },
   { value: 'accessories', label: 'Accessories' },
-  { value: 'unisex', label: 'Unisex' },
+  { value: 'beauty', label: 'Beauty' },
 ];
 
 const saleSchema = z.object({
@@ -42,7 +42,7 @@ const saleSchema = z.object({
     message: "End date must be today or in the future"
   }),
   url: z.string().url("Invalid sale URL").max(1000, "Sale URL max 1000 characters"),
-  categories: z.array(z.enum(["women", "men", "accessories", "unisex"])).min(1, "Select at least one category"),
+  categories: z.array(z.enum(["women", "men", "accessories", "beauty"])).min(1, "Select at least one category"),
   featured: z.boolean()
 });
 

@@ -26,7 +26,6 @@ const CATEGORY_LABELS: Record<string, string> = {
   men: 'Herren',
   accessories: 'Accessoires',
   beauty: 'Beauty',
-  unisex: 'Unisex',
 };
 
 const SaleCard = ({

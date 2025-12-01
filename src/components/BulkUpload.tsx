@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Upload, Download, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-type SaleCategory = "women" | "men" | "accessories" | "unisex";
+type SaleCategory = "women" | "men" | "accessories" | "beauty";
 
 interface SaleData {
   retailer: string;
@@ -56,7 +56,7 @@ const BulkUpload = ({ onSuccess }: BulkUploadProps) => {
       endDate: "2025-11-15",
       url: "https://www.zalando.de",
       featured: false,
-      categories: ["unisex"]
+      categories: ["beauty"]
     }
   ];
 
@@ -97,10 +97,10 @@ const BulkUpload = ({ onSuccess }: BulkUploadProps) => {
     } else if (sale.categories.length === 0) {
       errors.push(`${prefix} At least one category is required`);
     } else {
-      const validCategories = ['women', 'men', 'accessories', 'unisex'];
+      const validCategories = ['women', 'men', 'accessories', 'beauty'];
       const invalidCats = sale.categories.filter((cat: any) => !validCategories.includes(cat));
       if (invalidCats.length > 0) {
-        errors.push(`${prefix} Invalid categories: ${invalidCats.join(', ')}. Must be one of: women, men, accessories, unisex`);
+        errors.push(`${prefix} Invalid categories: ${invalidCats.join(', ')}. Must be one of: women, men, accessories, beauty`);
       }
     }
 
@@ -299,7 +299,7 @@ const BulkUpload = ({ onSuccess }: BulkUploadProps) => {
             <li><strong>endDate</strong> (required): Format: YYYY-MM-DD</li>
             <li><strong>url</strong> (required): Sale page URL</li>
             <li><strong>featured</strong> (optional): true/false (default: false)</li>
-            <li><strong>categories</strong> (required): Array of: "women", "men", "accessories", "unisex" (e.g., ["women", "accessories"])</li>
+            <li><strong>categories</strong> (required): Array of: "women", "men", "accessories", "beauty" (e.g., ["women", "accessories"])</li>
           </ul>
         </div>
       </CardContent>
