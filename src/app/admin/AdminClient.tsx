@@ -626,7 +626,7 @@ const Admin = () => {
                             </div>
                           </div>
                           <div className="text-sm text-muted-foreground font-light">
-                            {sale.discount} • {getCategoryLabel(sale.category)} • {sale.start_date} - {sale.end_date}
+                            {sale.discount} • {sale.categories.map(getCategoryLabel).join(', ')} • {sale.start_date} - {sale.end_date}
                           </div>
                         </div>
                       );
