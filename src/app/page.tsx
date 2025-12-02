@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -6,7 +8,7 @@ import EmailSignup from "@/components/EmailSignup";
 import Footer from "@/components/Footer";
 import ScrollingBanner from "@/components/ScrollingBanner";
 
-const Index = () => {
+export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
@@ -21,6 +23,4 @@ const Index = () => {
       <Footer />
     </div>
   );
-};
-
-export default Index;
+}

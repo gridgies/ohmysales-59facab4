@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { Upload, Download, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
+type SaleCategory = "women" | "men" | "accessories" | "beauty";
+
 interface SaleData {
   retailer: string;
   logo: string;
@@ -18,7 +20,7 @@ interface SaleData {
   endDate: string;
   url: string;
   featured?: boolean;
-  categories: string[];
+  categories: SaleCategory[];
 }
 
 interface BulkUploadProps {
@@ -42,7 +44,7 @@ const BulkUpload = ({ onSuccess }: BulkUploadProps) => {
       endDate: "2025-11-11",
       url: "https://www2.hm.com/de_de/sale.html",
       featured: true,
-      categories: ["women", "men"]
+      categories: ["women", "accessories"]
     },
     {
       retailer: "Zalando",
@@ -54,7 +56,7 @@ const BulkUpload = ({ onSuccess }: BulkUploadProps) => {
       endDate: "2025-11-15",
       url: "https://www.zalando.de",
       featured: false,
-      categories: ["women", "accessories"]
+      categories: ["beauty"]
     }
   ];
 
@@ -90,8 +92,16 @@ const BulkUpload = ({ onSuccess }: BulkUploadProps) => {
     if (!sale.url || typeof sale.url !== 'string' || !sale.url.startsWith('http')) {
       errors.push(`${prefix} Valid URL is required`);
     }
-    if (!Array.isArray(sale.categories) || sale.categories.length === 0) {
+    if (!sale.categories || !Array.isArray(sale.categories)) {
+      errors.push(`${prefix} Categories must be an array`);
+    } else if (sale.categories.length === 0) {
       errors.push(`${prefix} At least one category is required`);
+    } else {
+      const validCategories = ['women', 'men', 'accessories', 'beauty'];
+      const invalidCats = sale.categories.filter((cat: any) => !validCategories.includes(cat));
+      if (invalidCats.length > 0) {
+        errors.push(`${prefix} Invalid categories: ${invalidCats.join(', ')}. Must be one of: women, men, accessories, beauty`);
+      }
     }
 
     return errors;
@@ -289,7 +299,7 @@ const BulkUpload = ({ onSuccess }: BulkUploadProps) => {
             <li><strong>endDate</strong> (required): Format: YYYY-MM-DD</li>
             <li><strong>url</strong> (required): Sale page URL</li>
             <li><strong>featured</strong> (optional): true/false (default: false)</li>
-            <li><strong>categories</strong> (required): Array like ["women", "men", "beauty", "accessories"]</li>
+            <li><strong>categories</strong> (required): Array of: "women", "men", "accessories", "beauty" (e.g., ["women", "accessories"])</li>
           </ul>
         </div>
       </CardContent>

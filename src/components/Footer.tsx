@@ -11,7 +11,7 @@ const Footer = () => {
             <p className="text-sm text-muted-foreground font-light leading-relaxed">
               Deine Plattform für Premium Fashion Sales und exklusive Rabattcodes.
               Spare täglich bei H&M, Zara, Zalando, About You, ASOS, Mango und über 100 weiteren Top-Marken.
-              Black Friday 2025 und das ganze Jahr.
+              Cyber Monday 2025 und das ganze Jahr.
             </p>
           </div>
 
@@ -23,7 +23,7 @@ const Footer = () => {
               <li>✓ Exklusive Rabattcodes & Gutscheine</li>
               <li>✓ Bis zu 70% Rabatt sparen</li>
               <li>✓ Geprüfte Premium Brands</li>
-              <li>✓ Black Friday & Cyber Monday</li>
+              <li>✓ Cyber Monday Deals</li>
             </ul>
           </div>
 
@@ -68,7 +68,7 @@ const Footer = () => {
           </nav>
           <p className="text-sm text-muted-foreground font-light text-center">
             © {currentYear} ohmysales. Alle Rechte vorbehalten.<br />
-            <span className="text-xs">Premium Fashion Sales, Black Friday Deals & Rabattcodes für Deutschland · Mode Sale · Fashion Outlet · Designer Sale</span>
+            <span className="text-xs">Premium Fashion Sales, Cyber Monday Deals & Rabattcodes für Deutschland · Mode Sale · Fashion Outlet · Designer Sale</span>
           </p>
         </div>
       </div>

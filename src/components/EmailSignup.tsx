@@ -15,7 +15,8 @@ const EmailSignup = () => {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase
+      // @ts-ignore - newsletter_subscribers table not in generated types
+      const { error } = await (supabase as any)
         .from("newsletter_subscribers")
         .insert([{ email: email.toLowerCase().trim() }]);
 

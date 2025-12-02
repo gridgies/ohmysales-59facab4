@@ -2,16 +2,29 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: {
-    storage: localStorage,
-    persistSession: true,
-    autoRefreshToken: true,
+// Create a conditional client that only initializes if env vars are available
+// This prevents build errors when env vars are not set
+const createSupabaseClient = () => {
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+    console.warn('Supabase environment variables not set. Client will not function.');
+    // Return a minimal stub that won't crash during build
+    // At runtime with env vars, this will be the real client
+    return null as any;
   }
-});
+
+  return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: {
+      storage: typeof window !== 'undefined' ? localStorage : undefined,
+      persistSession: true,
+      autoRefreshToken: true,
+    }
+  });
+};
+
+export const supabase = createSupabaseClient();

@@ -4,7 +4,7 @@
   <!-- Homepage -->
   <url>
     <loc>https://ohmysales.app/</loc>
-    <lastmod>2025-11-26</lastmod>
+    <lastmod>2025-11-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="de" href="https://ohmysales.app/"/>
@@ -13,7 +13,7 @@
   <!-- Auth Page -->
   <url>
     <loc>https://ohmysales.app/auth</loc>
-    <lastmod>2025-11-26</lastmod>
+    <lastmod>2025-11-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
     <xhtml:link rel="alternate" hreflang="de" href="https://ohmysales.app/auth"/>
